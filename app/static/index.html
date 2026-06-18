@@ -6,150 +6,135 @@
   <title>KOLEGA</title>
   <style>
     :root {
-      --bg: #0f1117;
-      --panel: #171a23;
-      --panel-2: #1f2330;
-      --border: #2a2f3d;
-      --text: #e6e8ee;
-      --muted: #9aa3b2;
-      --accent: #6ea8fe;
-      --accent-2: #8b5cf6;
-      --ok: #34d399;
-      --err: #f87171;
+      --bg: #fbfbfa;
+      --card: #ffffff;
+      --ink: #18181b;
+      --muted: #71717a;
+      --faint: #a1a1aa;
+      --line: #ececec;
+      --line-soft: #f3f3f3;
+      --accent: #4f46e5;
+      --accent-weak: #eef0fe;
+      --ok: #15803d;
+      --ok-bg: #f0fdf4;
+      --err: #dc2626;
+      --err-bg: #fef2f2;
     }
     * { box-sizing: border-box; }
+    html, body { height: 100%; }
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(1200px 600px at 50% -10%, #1b2030 0%, var(--bg) 55%);
-      color: var(--text);
-      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
     .card {
       width: 100%;
-      max-width: 420px;
-      background: var(--panel);
-      border: 1px solid var(--border);
+      max-width: 400px;
+      background: var(--card);
+      border: 1px solid var(--line);
       border-radius: 16px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
-      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(24,24,27,0.04), 0 12px 32px rgba(24,24,27,0.05);
     }
-    .brand {
-      padding: 28px 28px 8px;
-      text-align: center;
+    /* Brand */
+    .brand { padding: 34px 34px 0; text-align: center; }
+    .brand .mark {
+      font-size: 16px; font-weight: 700; letter-spacing: 0.28em;
+      color: var(--ink); padding-left: 0.28em;
     }
-    .brand .logo {
-      font-size: 30px;
-      font-weight: 800;
-      letter-spacing: 0.5px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .brand .tag { color: var(--muted); font-size: 13px; margin-top: 4px; }
-    .tabs {
-      display: flex;
-      margin: 18px 28px 0;
-      background: var(--panel-2);
-      border-radius: 10px;
-      padding: 4px;
-    }
+    .brand .tag { color: var(--faint); font-size: 12.5px; margin-top: 8px; letter-spacing: 0.01em; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 28px; margin: 28px 34px 0; border-bottom: 1px solid var(--line); }
     .tabs button {
-      flex: 1;
-      padding: 10px;
-      border: 0;
-      background: transparent;
-      color: var(--muted);
-      font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.15s;
+      appearance: none; background: none; border: 0; padding: 0 0 12px;
+      font-size: 14px; font-weight: 500; color: var(--faint); cursor: pointer;
+      position: relative; transition: color 0.15s;
     }
-    .tabs button.active {
-      background: var(--accent);
-      color: #0b1020;
+    .tabs button:hover { color: var(--muted); }
+    .tabs button.active { color: var(--ink); font-weight: 600; }
+    .tabs button.active::after {
+      content: ""; position: absolute; left: 0; right: 0; bottom: -1px;
+      height: 2px; background: var(--ink); border-radius: 2px;
     }
-    form { padding: 20px 28px 28px; }
-    label { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 6px; }
+
+    /* Forms */
+    form { padding: 24px 34px 34px; }
+    label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--muted); margin: 18px 0 7px; }
+    label:first-of-type { margin-top: 4px; }
     input {
-      width: 100%;
-      padding: 12px 14px;
-      background: var(--panel-2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-size: 14px;
-      outline: none;
-      transition: border 0.15s;
+      width: 100%; padding: 11px 13px; font-size: 14px; color: var(--ink);
+      background: #fff; border: 1px solid var(--line); border-radius: 9px;
+      outline: none; transition: border-color 0.15s, box-shadow 0.15s;
     }
-    input:focus { border-color: var(--accent); }
+    input::placeholder { color: var(--faint); }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,0.12); }
+
+    /* Role picker */
+    .role-pick { display: flex; gap: 10px; }
+    .role-opt {
+      flex: 1; text-align: left; cursor: pointer;
+      padding: 12px 13px; border: 1px solid var(--line); border-radius: 11px;
+      background: #fff; transition: border-color 0.15s, background 0.15s;
+    }
+    .role-opt:hover { border-color: #dcdce0; }
+    .role-opt .role-title { display: block; font-size: 13.5px; font-weight: 600; color: var(--muted); }
+    .role-opt .role-desc { display: block; font-size: 11.5px; color: var(--faint); margin-top: 2px; }
+    .role-opt.active { border-color: var(--accent); background: var(--accent-weak); }
+    .role-opt.active .role-title { color: var(--accent); }
+    .role-opt.active .role-desc { color: #6d68d6; }
+
+    /* Button */
     .btn {
-      width: 100%;
-      margin-top: 22px;
-      padding: 13px;
-      border: 0;
-      border-radius: 10px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      color: #0b1020;
-      font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
+      width: 100%; margin-top: 26px; padding: 12px; border: 0; border-radius: 9px;
+      background: var(--ink); color: #fff; font-size: 14.5px; font-weight: 600;
+      cursor: pointer; transition: opacity 0.15s, transform 0.05s;
     }
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn:hover { opacity: 0.88; }
+    .btn:active { transform: translateY(1px); }
+
     .msg { margin-top: 16px; font-size: 13px; text-align: center; min-height: 18px; }
     .msg.ok { color: var(--ok); }
     .msg.err { color: var(--err); }
     .hidden { display: none; }
+
     /* Profile */
-    .profile { padding: 24px 28px 28px; }
+    .profile { padding: 32px 34px 34px; }
     .avatar {
-      width: 64px; height: 64px; border-radius: 50%;
-      margin: 0 auto 14px;
+      width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 16px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 28px; font-weight: 800; color: #0b1020;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      font-size: 22px; font-weight: 600; color: #fff; background: var(--accent);
     }
-    .profile h2 { text-align: center; margin: 0; font-size: 20px; }
-    .profile .email { text-align: center; color: var(--muted); font-size: 13px; margin-top: 2px; }
-    .rows { margin-top: 20px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-    .row {
-      display: flex; justify-content: space-between;
-      padding: 12px 16px; font-size: 14px;
-      border-bottom: 1px solid var(--border);
-    }
+    .profile h2 { text-align: center; margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+    .profile .email { text-align: center; color: var(--muted); font-size: 13px; margin-top: 3px; }
+    .rows { margin-top: 24px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .row { display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 16px; font-size: 14px; border-bottom: 1px solid var(--line-soft); }
     .row:last-child { border-bottom: 0; }
     .row .k { color: var(--muted); }
-    .badge {
-      display: inline-block; padding: 2px 10px; border-radius: 999px;
-      font-size: 12px; font-weight: 600;
-    }
-    .badge.on { background: rgba(52,211,153,0.15); color: var(--ok); }
-    .badge.off { background: rgba(154,163,178,0.15); color: var(--muted); }
+    .row .v { color: var(--ink); font-weight: 500; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 7px; font-size: 12px; font-weight: 600; }
+    .badge.on { background: var(--ok-bg); color: var(--ok); }
+    .badge.off { background: #f4f4f5; color: var(--muted); }
     .logout {
-      width: 100%; margin-top: 20px; padding: 12px;
-      background: transparent; border: 1px solid var(--border);
-      color: var(--text); border-radius: 10px; cursor: pointer; font-weight: 600;
+      width: 100%; margin-top: 22px; padding: 11px; border: 1px solid var(--line);
+      background: #fff; color: var(--ink); border-radius: 9px; font-size: 14px;
+      font-weight: 500; cursor: pointer; transition: border-color 0.15s, color 0.15s;
     }
-    .logout:hover { border-color: var(--err); color: var(--err); }
-    /* Role picker */
-    .role-pick { display: flex; gap: 8px; margin-top: 4px; }
-    .role-opt {
-      flex: 1; padding: 11px 8px; border: 1px solid var(--border);
-      background: var(--panel-2); color: var(--muted); border-radius: 10px;
-      cursor: pointer; font-size: 13px; font-weight: 600; line-height: 1.3;
-    }
-    .role-opt.active { border-color: var(--accent); color: var(--text); background: rgba(110,168,254,0.12); }
+    .logout:hover { border-color: #f1c4c4; color: var(--err); }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="brand">
-      <div class="logo">KOLEGA</div>
+      <div class="mark">KOLEGA</div>
       <div class="tag">Kolaborasi Layanan Ekonomi &amp; Geliat Warga</div>
     </div>
 
@@ -162,9 +147,9 @@
 
       <form id="login-form" onsubmit="return doLogin(event)">
         <label for="login-username">Username</label>
-        <input id="login-username" autocomplete="username" required />
+        <input id="login-username" placeholder="budi_las" autocomplete="username" required />
         <label for="login-password">Password</label>
-        <input id="login-password" type="password" autocomplete="current-password" required />
+        <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" required />
         <button class="btn" type="submit">Masuk</button>
         <div id="login-msg" class="msg"></div>
       </form>
@@ -172,15 +157,21 @@
       <form id="register-form" class="hidden" onsubmit="return doRegister(event)">
         <label>Daftar sebagai</label>
         <div class="role-pick">
-          <button type="button" class="role-opt active" data-role="customer" onclick="pickRole(this)">Warga<br><small>cari jasa</small></button>
-          <button type="button" class="role-opt" data-role="provider" onclick="pickRole(this)">Penyedia<br><small>tawarkan jasa</small></button>
+          <button type="button" class="role-opt active" data-role="customer" onclick="pickRole(this)">
+            <span class="role-title">Warga</span>
+            <span class="role-desc">Cari jasa</span>
+          </button>
+          <button type="button" class="role-opt" data-role="provider" onclick="pickRole(this)">
+            <span class="role-title">Penyedia</span>
+            <span class="role-desc">Tawarkan jasa</span>
+          </button>
         </div>
         <label for="reg-username">Username</label>
-        <input id="reg-username" minlength="3" maxlength="50" required />
+        <input id="reg-username" placeholder="budi_las" minlength="3" maxlength="50" required />
         <label for="reg-email">Email</label>
-        <input id="reg-email" type="email" required />
+        <input id="reg-email" type="email" placeholder="budi@email.com" required />
         <label for="reg-password">Password</label>
-        <input id="reg-password" type="password" minlength="8" required />
+        <input id="reg-password" type="password" placeholder="Minimal 8 karakter" minlength="8" required />
         <button class="btn" type="submit">Buat akun</button>
         <div id="register-msg" class="msg"></div>
       </form>
@@ -192,11 +183,11 @@
       <h2 id="p-username">—</h2>
       <div class="email" id="p-email">—</div>
       <div class="rows">
-        <div class="row"><span class="k">ID</span><span id="p-id">—</span></div>
+        <div class="row"><span class="k">ID</span><span class="v" id="p-id">—</span></div>
         <div class="row"><span class="k">Peran</span><span id="p-role"></span></div>
         <div class="row"><span class="k">Verifikasi</span><span id="p-verified"></span></div>
         <div class="row"><span class="k">Status</span><span id="p-active"></span></div>
-        <div class="row"><span class="k">Bergabung</span><span id="p-created">—</span></div>
+        <div class="row"><span class="k">Bergabung</span><span class="v" id="p-created">—</span></div>
       </div>
       <button class="logout" onclick="logout()">Keluar</button>
     </div>
@@ -311,7 +302,6 @@
       return null;
     }
 
-    // Restore session on load
     if (localStorage.getItem(TOKEN_KEY)) loadProfile();
   </script>
 </body>
