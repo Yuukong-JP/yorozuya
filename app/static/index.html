@@ -53,6 +53,44 @@
     .searchbar button { border: 0; background: var(--ink); color: #fff; font-weight: 600; font-size: 14px; padding: 11px 20px; border-radius: 10px; }
     .searchbar button:hover { opacity: .9; }
 
+    /* Landing */
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 24px; }
+    .lhero { padding: 72px 0 60px; text-align: center;
+      background: radial-gradient(1100px 420px at 50% -12%, var(--accent-weak), transparent 70%); }
+    .lhero h1 { font-size: clamp(30px, 5vw, 50px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.06; margin: 0 auto 18px; max-width: 740px; }
+    .lhero h1 .grad { background: linear-gradient(120deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lhero p { color: var(--muted); font-size: 18px; max-width: 560px; margin: 0 auto 28px; line-height: 1.55; }
+    .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-lg { border: 0; border-radius: 12px; padding: 14px 26px; font-size: 15px; font-weight: 600; }
+    .btn-primary { background: linear-gradient(120deg, var(--accent), var(--accent-2)); color: #fff; }
+    .btn-primary:hover { opacity: .92; }
+    .btn-outline { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+    .btn-outline:hover { border-color: #d4d4d8; }
+    .lstats { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; margin-top: 46px; }
+    .lstat b { display: block; font-size: 23px; font-weight: 800; letter-spacing: -0.02em; }
+    .lstat span { color: var(--muted); font-size: 13px; }
+    .section { padding: 56px 0; }
+    .section h2 { text-align: center; font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 8px; }
+    .section .lead { text-align: center; color: var(--muted); font-size: 15px; margin: 0 auto 36px; max-width: 520px; line-height: 1.5; }
+    .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+    .cat-tile { border: 1px solid var(--line); border-radius: 16px; padding: 18px; background: #fff; cursor: pointer; transition: transform .12s, box-shadow .15s, border-color .15s; }
+    .cat-tile:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: #e2e2e6; }
+    .cat-tile .ic { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 12px; color: #fff; }
+    .cat-tile .ct { font-weight: 700; font-size: 14px; }
+    .cat-tile .cs { color: var(--faint); font-size: 12px; margin-top: 2px; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; }
+    .step { text-align: center; padding: 8px; }
+    .step .num { width: 46px; height: 46px; border-radius: 50%; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 18px; color: var(--accent); background: var(--accent-weak); }
+    .step h3 { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+    .step p { color: var(--muted); font-size: 13.5px; line-height: 1.5; margin: 0; }
+    .band { background: var(--ink); color: #fff; border-radius: 22px; padding: 50px 30px; text-align: center; }
+    .band h2 { color: #fff; }
+    .band p { color: rgba(255,255,255,.72); }
+    .lfoot { border-top: 1px solid var(--line); padding: 28px 0; text-align: center; color: var(--faint); font-size: 13px; }
+    .compact-hero { padding: 30px 0 6px; text-align: center; }
+    .compact-hero h1 { font-size: 24px; font-weight: 800; margin: 0 0 16px; letter-spacing: -0.02em; }
+
     /* Category chips */
     .chips { display: flex; gap: 9px; overflow-x: auto; padding: 26px 2px 6px; margin-bottom: 18px; scrollbar-width: none; }
     .chips::-webkit-scrollbar { display: none; }
@@ -170,22 +208,78 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="brand" onclick="navTo('browse')"><div class="dot"></div><div class="name">KOLEGA</div></div>
+    <div class="brand" onclick="navTo('landing')"><div class="dot"></div><div class="name">KOLEGA</div></div>
     <nav class="nav">
-      <button class="navlink active" data-nav="browse" onclick="navTo('browse')">Cari Jasa</button>
+      <button class="navlink active" data-nav="landing" onclick="navTo('landing')">Beranda</button>
+      <button class="navlink" data-nav="browse" onclick="navTo('browse')">Cari Jasa</button>
       <button class="navlink" data-nav="account" onclick="navTo('account')">Akun</button>
     </nav>
     <div class="userbox" id="userbox"></div>
   </header>
 
-  <main>
+  <!-- LANDING -->
+  <section id="view-landing" class="view">
+    <div class="lhero">
+      <div class="wrap">
+        <h1>Cari jasa tepercaya di <span class="grad">kotamu</span>, semudah ngobrol</h1>
+        <p>KOLEGA menghubungkan kamu dengan tukang, penjahit, guru les, dan ahli lain di sekitarmu — langsung, tanpa perantara.</p>
+        <div class="searchbar" style="max-width:520px;margin:0 auto;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input id="landing-q" placeholder="Mau cari jasa apa hari ini?" onkeydown="if(event.key==='Enter')landingSearch()" />
+          <button onclick="landingSearch()">Cari</button>
+        </div>
+        <div class="cta-row" style="margin-top:22px;">
+          <button class="btn-lg btn-primary" onclick="navTo('browse')">Jelajahi penyedia</button>
+          <button class="btn-lg btn-outline" onclick="goRegisterProvider()">Jadi penyedia →</button>
+        </div>
+        <div class="lstats">
+          <div class="lstat"><b>11</b><span>kategori jasa</span></div>
+          <div class="lstat"><b>Padang Panjang</b><span>area layanan</span></div>
+          <div class="lstat"><b>Gratis</b><span>tanpa biaya daftar</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="wrap">
+        <h2>Jelajahi kategori</h2>
+        <p class="lead">Dari kebutuhan rumah tangga sampai keahlian khusus — temukan yang kamu butuhkan.</p>
+        <div class="cat-grid" id="landing-cats"></div>
+      </div>
+    </div>
+
+    <div class="section" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+      <div class="wrap">
+        <h2>Cara kerjanya</h2>
+        <p class="lead">Tiga langkah simpel, langsung terhubung dengan penyedianya.</p>
+        <div class="steps">
+          <div class="step"><div class="num">1</div><h3>Cari &amp; bandingkan</h3><p>Telusuri penyedia per kategori, lihat layanan dan harga mulai dari berapa.</p></div>
+          <div class="step"><div class="num">2</div><h3>Hubungi langsung</h3><p>Cocok? Hubungi penyedianya lewat kontak yang tertera — tanpa perantara.</p></div>
+          <div class="step"><div class="num">3</div><h3>Beres dikerjakan</h3><p>Sepakati pekerjaan, lalu biar ahlinya yang menyelesaikan.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="wrap">
+        <div class="band">
+          <h2>Punya keahlian? Tawarkan jasamu.</h2>
+          <p style="max-width:480px;margin:8px auto 22px;">Daftar sebagai penyedia, tampilkan layananmu, dan jangkau warga yang butuh keahlianmu.</p>
+          <button class="btn-lg btn-primary" onclick="goRegisterProvider()">Daftar jadi penyedia</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="lfoot">KOLEGA — Kolaborasi Layanan Ekonomi &amp; Geliat Warga · Padang Panjang</div>
+  </section>
+
+  <main id="app-main" class="hidden">
     <!-- BROWSE -->
     <section id="view-browse" class="view">
       <div id="browse-home">
-        <div class="hero">
-          <h1>Keahlian warga, <span class="grad">satu ketukan</span> saja</h1>
-          <p>Temukan penyedia jasa tepercaya di Padang Panjang — dari tukang las, penjahit, sampai guru les privat.</p>
-          <div class="searchbar">
+        <div class="compact-hero">
+          <h1>Cari penyedia jasa</h1>
+          <div class="searchbar" style="margin:0 auto;">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
             <input id="search-q" placeholder="Mau cari jasa apa hari ini?" onkeydown="if(event.key==='Enter')loadBrowse()" />
             <button onclick="loadBrowse()">Cari</button>
@@ -289,10 +383,31 @@
 
     function navTo(view) {
       document.querySelectorAll(".navlink").forEach((b) => b.classList.toggle("active", b.dataset.nav === view));
+      document.getElementById("view-landing").classList.toggle("hidden", view !== "landing");
+      document.getElementById("app-main").classList.toggle("hidden", view === "landing");
       document.getElementById("view-browse").classList.toggle("hidden", view !== "browse");
       document.getElementById("view-account").classList.toggle("hidden", view !== "account");
       if (view === "browse") { showBrowseHome(); loadBrowse(); }
       if (view === "account") renderAccount();
+      window.scrollTo({ top: 0 });
+    }
+    function landingSearch() {
+      document.getElementById("search-q").value = document.getElementById("landing-q").value.trim();
+      activeCat = ""; renderChips(); navTo("browse");
+    }
+    function goRegisterProvider() {
+      if (currentUser) { navTo("account"); return; }
+      navTo("account"); switchTab("register");
+      const provBtn = document.querySelector('.role-opt[data-role="provider"]');
+      if (provBtn) pickRole(provBtn);
+    }
+    function renderLandingCats() {
+      const wrap = document.getElementById("landing-cats");
+      if (!wrap) return;
+      wrap.innerHTML = Object.entries(CATS).filter(([k]) => k !== "lainnya").map(([k, m]) =>
+        `<div class="cat-tile" onclick="setCat('${k}'); navTo('browse')">
+          <div class="ic" style="background:${grad(k)}">${m.emo}</div>
+          <div class="ct">${m.label}</div><div class="cs">Lihat penyedia</div></div>`).join("");
     }
     function refreshUserbox() {
       const box = document.getElementById("userbox");
@@ -540,7 +655,7 @@
     }
     async function deleteService(id) { await api(`/providers/me/services/${id}`, { method: "DELETE" }); showDashboard(); }
 
-    (async function init() { renderChips(); await fetchMe(); navTo("browse"); })();
+    (async function init() { renderChips(); renderLandingCats(); await fetchMe(); navTo("landing"); })();
   </script>
 </body>
 </html>
