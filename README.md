@@ -107,12 +107,31 @@ uvicorn app.main:app --reload
 
 Base prefix: `/api/v1`
 
+**Auth**
+
 | Method | Path                    | Description                              |
 | ------ | ----------------------- | ---------------------------------------- |
 | POST   | `/api/v1/auth/register` | Create a new user (`customer`/`provider`)|
 | POST   | `/api/v1/auth/login`    | Obtain a JWT access token (OAuth2 form)  |
 | GET    | `/api/v1/auth/me`       | Get the current authenticated user       |
-| GET    | `/health`               | Liveness probe                           |
+
+**Providers & services**
+
+| Method | Path                                  | Access   | Description                          |
+| ------ | ------------------------------------- | -------- | ----------------------------------- |
+| GET    | `/api/v1/providers`                   | public   | Browse providers (`q`, `category`)  |
+| GET    | `/api/v1/providers/{id}`              | public   | Provider detail with services       |
+| POST   | `/api/v1/providers/me`                | provider | Create my provider profile          |
+| GET    | `/api/v1/providers/me`                | provider | Get my provider profile             |
+| PATCH  | `/api/v1/providers/me`                | provider | Update my provider profile          |
+| POST   | `/api/v1/providers/me/services`       | provider | Add a service                       |
+| GET    | `/api/v1/providers/me/services`       | provider | List my services                    |
+| PATCH  | `/api/v1/providers/me/services/{id}`  | provider | Update my service                   |
+| DELETE | `/api/v1/providers/me/services/{id}`  | provider | Delete my service                   |
+
+| Method | Path        | Description       |
+| ------ | ----------- | ----------------- |
+| GET    | `/health`   | Liveness probe    |
 
 ### Example
 
@@ -162,9 +181,10 @@ alembic downgrade -1
 Per the proposal's mandatory (*Wajib*) tier-1 features:
 
 - [x] Daftar & masuk akun (register / login + roles)
-- [ ] Profil penyedia (skills, services, pricing)
-- [ ] Verifikasi identitas penyedia
-- [ ] Pencarian & filter penyedia
+- [x] Profil penyedia (skills, services, pricing)
+- [x] Pencarian & filter penyedia (browse)
+- [x] Dasbor penyedia (kelola profil & layanan)
+- [ ] Verifikasi identitas penyedia (admin/pengelola)
 - [ ] Sistem pemesanan (booking)
 - [ ] Ulasan & penilaian
-- [ ] Dasbor penyedia & dasbor pengelola
+- [ ] Dasbor pengelola
