@@ -10,6 +10,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
     func,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -58,11 +59,26 @@ class ProviderProfile(Base):
         cascade="all, delete-orphan",
         order_by="Service.created_at.desc()",
     )
+    reviews: Mapped[list["Review"]] = relationship(
+        back_populates="provider",
+        cascade="all, delete-orphan",
+        order_by="Review.created_at.desc()",
+    )
 
     @property
     def is_verified(self) -> bool:
         """Expose the owning user's verification status on the profile."""
         return bool(self.user and self.user.is_verified)
+
+    @property
+    def rating_count(self) -> int:
+        return len(self.reviews)
+
+    @property
+    def rating_avg(self) -> float:
+        if not self.reviews:
+            return 0.0
+        return round(sum(r.rating for r in self.reviews) / len(self.reviews), 1)
 
     def __repr__(self) -> str:  # pragma: no cover
         return f"<ProviderProfile id={self.id} name={self.display_name!r}>"
@@ -103,3 +119,47 @@ class Service(Base):
 
     def __repr__(self) -> str:  # pragma: no cover
         return f"<Service id={self.id} title={self.title!r}>"
+
+
+class Review(Base):
+    """A rating + comment left by a resident for a provider (ulasan)."""
+
+    __tablename__ = "reviews"
+    __table_args__ = (
+        UniqueConstraint(
+            "provider_id", "author_id", name="uq_review_provider_author"
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    provider_id: Mapped[int] = mapped_column(
+        ForeignKey("provider_profiles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    author_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    rating: Mapped[int] = mapped_column(Integer, nullable=False)  # 1..5
+    comment: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    provider: Mapped["ProviderProfile"] = relationship(back_populates="reviews")
+    author: Mapped["User"] = relationship(lazy="selectin")
+
+    @property
+    def author_username(self) -> str:
+        return self.author.username if self.author else "warga"
+
+    def __repr__(self) -> str:  # pragma: no cover
+        return f"<Review id={self.id} provider={self.provider_id} rating={self.rating}>"

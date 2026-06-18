@@ -5,8 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.enums import ServiceCategory
-from app.models.provider import ProviderProfile, Service
+from app.models.provider import ProviderProfile, Review, Service
 from app.schemas.provider import ProviderProfileCreate, ProviderProfileUpdate
+from app.schemas.review import ReviewCreate
 from app.schemas.service import ServiceCreate, ServiceUpdate
 
 
@@ -18,7 +19,10 @@ async def get_profile_by_id(
     result = await db.execute(
         select(ProviderProfile)
         .where(ProviderProfile.id == provider_id)
-        .options(selectinload(ProviderProfile.services))
+        .options(
+            selectinload(ProviderProfile.services),
+            selectinload(ProviderProfile.reviews),
+        )
     )
     return result.scalar_one_or_none()
 
@@ -29,7 +33,10 @@ async def get_profile_by_user(
     result = await db.execute(
         select(ProviderProfile)
         .where(ProviderProfile.user_id == user_id)
-        .options(selectinload(ProviderProfile.services))
+        .options(
+            selectinload(ProviderProfile.services),
+            selectinload(ProviderProfile.reviews),
+        )
     )
     return result.scalar_one_or_none()
 
@@ -60,7 +67,8 @@ async def list_profiles(
     offset: int = 0,
 ) -> list[ProviderProfile]:
     stmt = select(ProviderProfile).options(
-        selectinload(ProviderProfile.services)
+        selectinload(ProviderProfile.services),
+        selectinload(ProviderProfile.reviews),
     )
     if q:
         pattern = f"%{q}%"
@@ -144,3 +152,52 @@ async def update_service(
 async def delete_service(db: AsyncSession, service: Service) -> None:
     await db.delete(service)
     await db.commit()
+
+
+# --- Reviews -----------------------------------------------------------------
+
+async def get_review(db: AsyncSession, review_id: int) -> Review | None:
+    result = await db.execute(select(Review).where(Review.id == review_id))
+    return result.scalar_one_or_none()
+
+
+async def get_review_by_author(
+    db: AsyncSession, provider_id: int, author_id: int
+) -> Review | None:
+    result = await db.execute(
+        select(Review).where(
+            Review.provider_id == provider_id,
+            Review.author_id == author_id,
+        )
+    )
+    return result.scalar_one_or_none()
+
+
+async def list_reviews(db: AsyncSession, provider_id: int) -> list[Review]:
+    result = await db.execute(
+        select(Review)
+        .where(Review.provider_id == provider_id)
+        .order_by(Review.created_at.desc())
+    )
+    return list(result.scalars().all())
+
+
+async def create_or_update_review(
+    db: AsyncSession, provider_id: int, author_id: int, data: ReviewCreate
+) -> Review:
+    """One review per resident per provider: update it if it already exists."""
+    existing = await get_review_by_author(db, provider_id, author_id)
+    if existing is not None:
+        existing.rating = data.rating
+        existing.comment = data.comment
+        await db.commit()
+        return await get_review(db, existing.id)
+    review = Review(
+        provider_id=provider_id,
+        author_id=author_id,
+        rating=data.rating,
+        comment=data.comment,
+    )
+    db.add(review)
+    await db.commit()
+    return await get_review(db, review.id)

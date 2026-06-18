@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_provider
+from app.api.deps import get_current_active_user, get_current_provider
 from app.core.database import get_db
 from app.crud import provider as provider_crud
 from app.models.enums import ServiceCategory
@@ -14,6 +14,7 @@ from app.schemas.provider import (
     ProviderProfileUpdate,
     ProviderSummary,
 )
+from app.schemas.review import ReviewCreate, ReviewRead
 from app.schemas.service import ServiceCreate, ServiceRead, ServiceUpdate
 
 router = APIRouter(prefix="/providers", tags=["providers"])
@@ -161,3 +162,43 @@ async def read_provider(
             status_code=status.HTTP_404_NOT_FOUND, detail="Penyedia tidak ditemukan"
         )
     return profile
+
+
+# --- Reviews -----------------------------------------------------------------
+
+@router.get("/{provider_id}/reviews", response_model=list[ReviewRead])
+async def list_provider_reviews(
+    provider_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> list[ReviewRead]:
+    if await provider_crud.get_profile_by_id(db, provider_id) is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Penyedia tidak ditemukan"
+        )
+    return await provider_crud.list_reviews(db, provider_id)
+
+
+@router.post(
+    "/{provider_id}/reviews",
+    response_model=ReviewRead,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_provider_review(
+    provider_id: int,
+    data: ReviewCreate,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> ReviewRead:
+    profile = await provider_crud.get_profile_by_id(db, provider_id)
+    if profile is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Penyedia tidak ditemukan"
+        )
+    if profile.user_id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Tidak bisa menilai diri sendiri",
+        )
+    return await provider_crud.create_or_update_review(
+        db, provider_id, current_user.id, data
+    )

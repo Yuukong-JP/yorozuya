@@ -158,6 +158,28 @@
     .svc .price small { display: block; color: var(--faint); font-size: 11px; font-weight: 500; }
     .svc .desc { color: var(--muted); font-size: 13.5px; margin-top: 10px; line-height: 1.5; }
 
+    /* Reviews */
+    .rev-summary { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .rev-summary > b { font-size: 38px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+    .rev-summary .gstar { color: #f59e0b; letter-spacing: 2px; font-size: 16px; } .rev-summary .mstar { color: #d4d4d8; letter-spacing: 2px; font-size: 16px; }
+    .rev-sub { color: var(--faint); font-size: 13px; margin-top: 3px; }
+    .rev-prompt { color: var(--muted); font-size: 13.5px; background: var(--line-soft); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; }
+    .link-accent { border: 0; background: none; color: var(--accent); font-weight: 600; font-size: 13.5px; padding: 0; }
+    .rev-form { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-bottom: 20px; }
+    .rev-form-t { font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+    .star-input { display: flex; gap: 4px; }
+    .star-input button { border: 0; background: none; font-size: 28px; line-height: 1; color: #d4d4d8; padding: 0 2px; transition: color .1s, transform .1s; }
+    .star-input button:hover { transform: scale(1.12); }
+    .star-input button.on { color: #f59e0b; }
+    .rev-form textarea { margin-top: 12px; }
+    .rev-item { border-top: 1px solid var(--line-soft); padding: 16px 0; }
+    .rev-head { display: flex; align-items: center; gap: 10px; }
+    .rev-ava { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-weak); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .rev-name { font-weight: 600; font-size: 14px; }
+    .rev-stars .gstar { color: #f59e0b; letter-spacing: 1px; font-size: 13px; } .rev-stars .mstar { color: #d4d4d8; letter-spacing: 1px; font-size: 13px; }
+    .rev-date { margin-left: auto; color: var(--faint); font-size: 12px; }
+    .rev-comment { color: var(--ink2); font-size: 14px; line-height: 1.55; margin-top: 8px; padding-left: 46px; }
+
     /* Auth + dashboard */
     .center-wrap { display: flex; justify-content: center; padding-top: 40px; }
     .card.auth { width: 100%; max-width: 410px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
@@ -368,6 +390,7 @@
     const grad = (c) => { const m = catMeta(c); return `linear-gradient(135deg, ${m.g[0]}, ${m.g[1]})`; };
     let currentUser = null;
     let activeCat = "";
+    let selectedStar = 0;
 
     const token = () => localStorage.getItem(TOKEN_KEY);
     const authH = () => (token() ? { Authorization: `Bearer ${token()}` } : {});
@@ -481,6 +504,55 @@
       </div>`;
     }
 
+    function goldStars(n) {
+      const f = Math.max(0, Math.min(5, Math.round(n)));
+      return `<span class="gstar">${"★".repeat(f)}</span><span class="mstar">${"★".repeat(5 - f)}</span>`;
+    }
+    function fmtDate(s) {
+      try { return new Date(s).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }); }
+      catch (_) { return ""; }
+    }
+    function setReviewStar(n) {
+      selectedStar = n;
+      document.querySelectorAll("#star-input button").forEach((b) => b.classList.toggle("on", Number(b.dataset.v) <= n));
+    }
+    function reviewsBlock(p) {
+      const reviews = p.reviews || [];
+      const mine = currentUser ? reviews.find((r) => r.author_username === currentUser.username) : null;
+      let form;
+      if (!currentUser) {
+        form = `<div class="rev-prompt">Masuk untuk memberi ulasan. <button class="link-accent" onclick="navTo('account')">Masuk di sini</button></div>`;
+      } else if (currentUser.id === p.user_id) {
+        form = `<div class="rev-prompt">Ini profilmu — kamu tidak bisa menilai diri sendiri.</div>`;
+      } else {
+        form = `<div class="rev-form">
+          <div class="rev-form-t">${mine ? "Perbarui ulasanmu" : `Beri ulasan untuk ${esc(p.display_name)}`}</div>
+          <div class="star-input" id="star-input">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-v="${n}" onclick="setReviewStar(${n})">★</button>`).join("")}</div>
+          <textarea id="rev-comment" placeholder="Ceritakan pengalamanmu (opsional)…">${mine ? esc(mine.comment || "") : ""}</textarea>
+          <button class="btn" style="margin-top:12px" onclick="submitReview(${p.id})">${mine ? "Perbarui ulasan" : "Kirim ulasan"}</button>
+          <div id="rev-msg" class="msg"></div>
+        </div>`;
+      }
+      const summary = reviews.length
+        ? `<div class="rev-summary"><b>${Number(p.rating_avg).toFixed(1)}</b><div>${goldStars(p.rating_avg)}<div class="rev-sub">${reviews.length} ulasan</div></div></div>`
+        : "";
+      const list = reviews.length
+        ? reviews.map((r) => `<div class="rev-item">
+            <div class="rev-head"><div class="rev-ava">${initial(r.author_username)}</div>
+              <div><div class="rev-name">${esc(r.author_username)}</div><div class="rev-stars">${goldStars(r.rating)}</div></div>
+              <div class="rev-date">${fmtDate(r.created_at)}</div></div>
+            ${r.comment ? `<div class="rev-comment">${esc(r.comment)}</div>` : ""}</div>`).join("")
+        : `<div class="empty" style="padding:22px 0">Belum ada ulasan. Jadilah yang pertama!</div>`;
+      return `<div class="section-title">Ulasan (${reviews.length})</div>${summary}${form}${list}`;
+    }
+    async function submitReview(id) {
+      if (selectedStar < 1) { setMsg("rev-msg", "Pilih bintang dulu (1–5).", false); return; }
+      const comment = document.getElementById("rev-comment").value.trim() || null;
+      const { ok, data } = await api(`/providers/${id}/reviews`, { method: "POST", body: JSON.stringify({ rating: selectedStar, comment }) });
+      if (ok) openProvider(id);
+      else setMsg("rev-msg", errText(data) || "Gagal mengirim ulasan", false);
+    }
+
     async function openProvider(id) {
       const { data: p, ok } = await api(`/providers/${id}`);
       if (!ok) return;
@@ -512,8 +584,12 @@
             ${p.phone ? `<div class="contact">📞 ${esc(p.phone)}</div>` : ""}
             <div class="section-title">Layanan (${services.length})</div>
             ${svc}
+            ${reviewsBlock(p)}
           </div>
         </div>`;
+      const mine = currentUser ? (p.reviews || []).find((r) => r.author_username === currentUser.username) : null;
+      selectedStar = 0;
+      if (document.getElementById("star-input")) setReviewStar(mine ? mine.rating : 0);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 

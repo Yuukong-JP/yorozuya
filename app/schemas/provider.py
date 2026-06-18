@@ -4,6 +4,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.review import ReviewRead
 from app.schemas.service import ServiceRead
 
 
@@ -43,6 +44,8 @@ class ProviderSummary(ProviderProfileBase):
     service_count: int = 0
     starting_price: int | None = None
     primary_category: str | None = None
+    rating_avg: float = 0.0
+    rating_count: int = 0
 
 
 class ProviderProfileRead(ProviderProfileBase):
@@ -52,5 +55,8 @@ class ProviderProfileRead(ProviderProfileBase):
     user_id: int
     is_verified: bool = False
     services: list[ServiceRead] = []
+    reviews: list[ReviewRead] = []
+    rating_avg: float = 0.0
+    rating_count: int = 0
     created_at: datetime
     updated_at: datetime
