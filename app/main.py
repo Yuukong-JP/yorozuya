@@ -1,9 +1,14 @@
 """Yorozuya FastAPI application entrypoint."""
 
+from pathlib import Path
+
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from app.api.router import api_router
 from app.core.config import settings
+
+STATIC_DIR = Path(__file__).parent / "static"
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -23,6 +28,6 @@ async def health_check() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@app.get("/", tags=["health"])
-async def root() -> dict[str, str]:
-    return {"service": settings.PROJECT_NAME, "docs": "/docs"}
+# Serve the single-page web client at the root. Mounted last so it does not
+# shadow the API (/api/v1) or /health routes registered above.
+app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="frontend")
