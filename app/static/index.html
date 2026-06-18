@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KOLEGA — Cari jasa tepercaya di kotamu</title>
+  <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="%234f46e5"/><stop offset="1" stop-color="%237c3aed"/></linearGradient></defs><rect x="4" y="4" width="48" height="48" rx="14" fill="url(%23g)"/><g stroke="%23fff" stroke-width="5.5" fill="none" stroke-linecap="square"><path d="M21 17 V39"/><path d="M21 28 L37 17"/><path d="M21 28 L37 39"/></g></svg>' />
   <style>
     :root {
       --bg: #f7f7f8; --card: #fff; --ink: #18181b; --ink2: #3f3f46; --muted: #71717a; --faint: #a1a1aa;
@@ -24,7 +25,7 @@
       backdrop-filter: saturate(180%) blur(10px); border-bottom: 1px solid var(--line);
       display: flex; align-items: center; gap: 18px; padding: 13px 24px; }
     .brand { display: flex; align-items: center; gap: 9px; cursor: pointer; }
-    .brand .dot { width: 22px; height: 22px; border-radius: 7px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+    .brand .dot { width: 24px; height: 24px; display: block; }
     .brand .name { font-size: 15px; font-weight: 700; letter-spacing: 0.22em; padding-left: 0.22em; }
     .nav { display: flex; gap: 4px; margin-left: 6px; }
     .navlink { border: 0; background: none; padding: 7px 13px; border-radius: 9px; font-size: 14px; color: var(--muted); font-weight: 500; }
@@ -161,7 +162,7 @@
     .center-wrap { display: flex; justify-content: center; padding-top: 40px; }
     .card.auth { width: 100%; max-width: 410px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
     .auth-brand { padding: 34px 34px 0; text-align: center; }
-    .auth-brand .dot { width: 30px; height: 30px; border-radius: 9px; margin: 0 auto 12px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+    .auth-brand .dot { width: 34px; height: 34px; display: block; margin: 0 auto 12px; }
     .auth-brand .mark { font-size: 16px; font-weight: 700; letter-spacing: 0.26em; padding-left: 0.26em; }
     .auth-brand .tag { color: var(--faint); font-size: 12.5px; margin-top: 8px; }
     .tabs { display: flex; gap: 28px; margin: 26px 34px 0; border-bottom: 1px solid var(--line); }
@@ -207,8 +208,21 @@
   </style>
 </head>
 <body>
+  <!-- Shared KOLEGA logo (geometric "K" monogram) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+    <symbol id="kolega-mark" viewBox="0 0 56 56">
+      <rect x="4" y="4" width="48" height="48" rx="14" fill="url(#logo-grad)"/>
+      <g stroke="#fff" stroke-width="5.5" fill="none" stroke-linecap="square">
+        <path d="M21 17 V39"/><path d="M21 28 L37 17"/><path d="M21 28 L37 39"/>
+      </g>
+    </symbol>
+  </defs></svg>
+
   <header class="topbar">
-    <div class="brand" onclick="navTo('landing')"><div class="dot"></div><div class="name">KOLEGA</div></div>
+    <div class="brand" onclick="navTo('landing')"><svg class="dot" viewBox="0 0 56 56"><use href="#kolega-mark"/></svg><div class="name">KOLEGA</div></div>
     <nav class="nav">
       <button class="navlink active" data-nav="landing" onclick="navTo('landing')">Beranda</button>
       <button class="navlink" data-nav="browse" onclick="navTo('browse')">Cari Jasa</button>
@@ -296,7 +310,7 @@
     <section id="view-account" class="view hidden">
       <div id="auth-card" class="center-wrap">
         <div class="card auth">
-          <div class="auth-brand"><div class="dot"></div><div class="mark">KOLEGA</div>
+          <div class="auth-brand"><svg class="dot" viewBox="0 0 56 56"><use href="#kolega-mark"/></svg><div class="mark">KOLEGA</div>
             <div class="tag">Kolaborasi Layanan Ekonomi &amp; Geliat Warga</div></div>
           <div class="tabs">
             <button id="tab-login" class="active" onclick="switchTab('login')">Masuk</button>
@@ -555,7 +569,7 @@
     function renderCustomerDashboard(dash) {
       const u = currentUser;
       dash.innerHTML = `<div class="center-wrap"><div class="card auth" style="max-width:430px">
-        <div class="auth-brand"><div class="dot"></div><div class="mark">KOLEGA</div></div>
+        <div class="auth-brand"><svg class="dot" viewBox="0 0 56 56"><use href="#kolega-mark"/></svg><div class="mark">KOLEGA</div></div>
         <div style="padding:24px 34px 34px">
           <div class="dash-head"><div class="ava">${initial(u.username)}</div>
             <div><h2>${esc(u.username)}</h2><div class="sub">Warga · ${esc(u.email)}</div></div></div>
