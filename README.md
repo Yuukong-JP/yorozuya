@@ -108,6 +108,16 @@ curl http://localhost:8000/api/v1/auth/me \
   -H "Authorization: Bearer <access_token>"
 ```
 
+## Tests
+
+Tests run against an in-memory SQLite database, so no PostgreSQL instance is
+needed:
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
 ## Database migrations
 
 ```bash
