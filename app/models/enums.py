@@ -16,6 +16,16 @@ class UserRole(str, Enum):
     ADMIN = "admin"
 
 
+class BookingStatus(str, Enum):
+    """Lifecycle of a service booking (pemesanan)."""
+
+    PENDING = "pending"      # waiting for the provider to respond
+    ACCEPTED = "accepted"    # provider agreed to do the job
+    REJECTED = "rejected"    # provider declined
+    COMPLETED = "completed"  # job finished
+    CANCELLED = "cancelled"  # customer cancelled before acceptance
+
+
 class ServiceCategory(str, Enum):
     """Common informal-work categories in the city, used for browse/filter."""
 

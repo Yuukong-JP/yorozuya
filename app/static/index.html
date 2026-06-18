@@ -228,6 +228,28 @@
     .del:hover { border-color: #f1c4c4; color: var(--err); }
     .btn-mini { border: 0; background: var(--accent); color: #fff; border-radius: 9px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; }
     .btn-mini:hover { opacity: .9; }
+    .badge.rej { background: #fef2f2; color: var(--err); }
+    .badge.done { background: var(--accent-weak); color: var(--accent); }
+    .svc-act { margin-top: 12px; }
+    .row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(24,24,27,.5); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 20px; backdrop-filter: blur(2px); }
+    .modal { background: #fff; border-radius: 18px; width: 100%; max-width: 440px; padding: 24px 26px 26px; box-shadow: 0 20px 60px rgba(0,0,0,.25); max-height: 90vh; overflow: auto; }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .modal-head h3 { margin: 0; font-size: 18px; font-weight: 700; }
+    .modal-x { border: 0; background: none; font-size: 24px; color: var(--faint); line-height: 1; }
+    .modal-x:hover { color: var(--ink); }
+    .modal label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 14px 0 7px; }
+    .modal input, .modal textarea { width: 100%; box-sizing: border-box; padding: 11px 13px; font-size: 14px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; outline: none; }
+    .modal input:focus, .modal textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,.12); }
+    .modal textarea { min-height: 80px; resize: vertical; }
+    .book-prov { display: flex; align-items: center; gap: 12px; }
+    .book-prov .ava { width: 46px; height: 46px; border-radius: 12px; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; }
+    .book-name { font-weight: 700; font-size: 15px; }
+    .book-svc { margin-top: 14px; background: var(--line-soft); border-radius: 10px; padding: 10px 14px; font-size: 13.5px; }
+    .book-done { text-align: center; padding: 14px 0 4px; }
+    .book-check { width: 54px; height: 54px; border-radius: 50%; background: var(--ok-bg); color: var(--ok); font-size: 28px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+    .book-done h3 { margin: 0; font-size: 19px; }
     .astats { display: flex; gap: 12px; flex-wrap: wrap; margin: 6px 0 8px; }
     .astat { flex: 1; min-width: 92px; border: 1px solid var(--line); border-radius: 13px; padding: 14px; text-align: center; }
     .astat b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
@@ -397,6 +419,11 @@
     </section>
   </main>
 
+  <!-- Booking modal -->
+  <div id="modal" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()">
+    <div class="modal" id="modal-box"></div>
+  </div>
+
   <script>
     const API = "/api/v1";
     const TOKEN_KEY = "kolega_token";
@@ -419,6 +446,15 @@
     let currentUser = null;
     let activeCat = "";
     let selectedStar = 0;
+    let currentDetail = null;
+    const BOOK_STATUS = {
+      pending: { label: "Menunggu", cls: "off" },
+      accepted: { label: "Diterima", cls: "on" },
+      rejected: { label: "Ditolak", cls: "rej" },
+      completed: { label: "Selesai", cls: "done" },
+      cancelled: { label: "Dibatalkan", cls: "off" },
+    };
+    const bookBadge = (s) => { const m = BOOK_STATUS[s] || BOOK_STATUS.pending; return `<span class="badge ${m.cls}">${m.label}</span>`; };
 
     const token = () => localStorage.getItem(TOKEN_KEY);
     const authH = () => (token() ? { Authorization: `Bearer ${token()}` } : {});
@@ -581,9 +617,57 @@
       else setMsg("rev-msg", errText(data) || "Gagal mengirim ulasan", false);
     }
 
+    function closeModal() { document.getElementById("modal").classList.add("hidden"); }
+    function openBooking(serviceId) {
+      const p = currentDetail;
+      if (!p) return;
+      if (!currentUser) {
+        document.getElementById("modal-box").innerHTML = `<div class="modal-head"><h3>Masuk dulu yuk</h3><button class="modal-x" onclick="closeModal()">×</button></div>
+          <p class="bio" style="margin:0 0 18px">Kamu perlu masuk sebagai warga untuk memesan jasa.</p>
+          <button class="btn" onclick="closeModal(); navTo('account')">Masuk / Daftar</button>`;
+        document.getElementById("modal").classList.remove("hidden");
+        return;
+      }
+      const svc = serviceId ? (p.services || []).find((s) => s.id === serviceId) : null;
+      document.getElementById("modal-box").innerHTML = `
+        <div class="modal-head"><h3>Pesan jasa</h3><button class="modal-x" onclick="closeModal()">×</button></div>
+        <div class="book-prov">
+          <div class="ava" style="background:${grad((svc && svc.category) || (p.services && p.services[0] && p.services[0].category) || "lainnya")}">${initial(p.display_name)}</div>
+          <div><div class="book-name">${esc(p.display_name)}</div><div class="sub">${esc(p.profession)}</div></div>
+        </div>
+        ${svc ? `<div class="book-svc">${esc(svc.title)} · <b>${rp(svc.price)}</b> <span style="color:var(--faint)">${esc(svc.price_unit)}</span></div>` : ""}
+        <input type="hidden" id="book-service" value="${serviceId || ""}" />
+        <label>Waktu yang diinginkan (opsional)</label>
+        <input id="book-time" placeholder="mis. Sabtu 21 Jun, pagi" maxlength="120" />
+        <label>Catatan untuk penyedia (opsional)</label>
+        <textarea id="book-note" placeholder="Jelaskan kebutuhanmu…" maxlength="1000"></textarea>
+        <button class="btn" style="margin-top:16px" onclick="submitBooking(${p.id})">Kirim pesanan</button>
+        <div id="book-msg" class="msg"></div>`;
+      document.getElementById("modal").classList.remove("hidden");
+    }
+    async function submitBooking(providerId) {
+      const sid = document.getElementById("book-service").value;
+      const body = {
+        provider_id: providerId,
+        service_id: sid ? Number(sid) : null,
+        preferred_time: document.getElementById("book-time").value.trim() || null,
+        note: document.getElementById("book-note").value.trim() || null,
+      };
+      const { ok, data } = await api("/bookings", { method: "POST", body: JSON.stringify(body) });
+      if (ok) {
+        document.getElementById("modal-box").innerHTML = `<div class="book-done">
+          <div class="book-check">✓</div><h3>Pesanan terkirim!</h3>
+          <p class="bio" style="margin:6px 0 20px">Penyedia akan meninjau pesananmu. Kamu bisa pantau statusnya di Akun.</p>
+          <button class="btn" onclick="closeModal(); navTo('account')">Lihat pesanan saya</button></div>`;
+      } else {
+        setMsg("book-msg", errText(data) || "Gagal mengirim pesanan", false);
+      }
+    }
+
     async function openProvider(id) {
       const { data: p, ok } = await api(`/providers/${id}`);
       if (!ok) return;
+      currentDetail = p;
       const cat = (p.services && p.services[0] && p.services[0].category) || "lainnya";
       const verif = p.is_verified ? `<span class="badge on">${VERIF_ICON}Terverifikasi</span>` : `<span class="badge off">Baru</span>`;
       const services = (p.services || []).filter((s) => s.is_active);
@@ -592,7 +676,8 @@
         return `<div class="svc"><div class="st">
           <div><div class="stitle">${esc(s.title)}</div><div class="scat">${sm.emo} ${sm.label}</div></div>
           <div class="price"><b>${rp(s.price)}</b><small>${esc(s.price_unit)}</small></div></div>
-          ${s.description ? `<div class="desc">${esc(s.description)}</div>` : ""}</div>`;
+          ${s.description ? `<div class="desc">${esc(s.description)}</div>` : ""}
+          <div class="svc-act"><button class="btn-mini" onclick="openBooking(${s.id})">Pesan jasa ini</button></div></div>`;
       }).join("") : `<div class="empty" style="padding:32px 0">Penyedia ini belum menambahkan layanan.</div>`;
       document.getElementById("browse-home").classList.add("hidden");
       const d = document.getElementById("browse-detail");
@@ -610,6 +695,7 @@
             ${p.headline ? `<p class="bio" style="font-weight:500">${esc(p.headline)}</p>` : ""}
             ${p.bio ? `<p class="bio">${esc(p.bio)}</p>` : ""}
             ${p.phone ? `<div class="contact">📞 ${esc(p.phone)}</div>` : ""}
+            <div style="margin-top:16px"><button class="btn-lg btn-primary" style="padding:12px 22px;font-size:14px" onclick="openBooking(null)">📅 Pesan / Booking jasa</button></div>
             <div class="section-title">Layanan (${services.length})</div>
             ${svc}
             ${reviewsBlock(p)}
@@ -702,23 +788,40 @@
       await api(`/admin/providers/${id}/${verified ? "verify" : "unverify"}`, { method: "POST" });
       showDashboard();
     }
-    function renderCustomerDashboard(dash) {
+    async function renderCustomerDashboard(dash) {
       const u = currentUser;
-      dash.innerHTML = `<div class="center-wrap"><div class="card auth" style="max-width:430px">
-        <div class="auth-brand"><svg class="dot" viewBox="0 0 56 56"><use href="#kolega-mark"/></svg><div class="mark">KOLEGA</div></div>
-        <div style="padding:24px 34px 34px">
-          <div class="dash-head"><div class="ava">${initial(u.username)}</div>
-            <div><h2>${esc(u.username)}</h2><div class="sub">Warga · ${esc(u.email)}</div></div></div>
-          <p class="bio" style="margin-top:16px">Kamu masuk sebagai <b>Warga</b>. Yuk cari jasa yang kamu butuhkan.</p>
-          <button class="btn dark" onclick="navTo('browse')">Cari Jasa</button>
-        </div></div></div>`;
+      const { data: bookings } = await api("/bookings/me");
+      const n = (bookings || []).length;
+      const list = n
+        ? bookings.map(custBookingRow).join("")
+        : `<div class="empty" style="padding:24px 0">Belum ada pesanan. <button class="link-accent" onclick="navTo('browse')">Cari jasa →</button></div>`;
+      dash.innerHTML = `<div class="panel"><div class="detail-body" style="padding-top:24px">
+        <div class="dash-head"><div class="ava">${initial(u.username)}</div>
+          <div><h2>${esc(u.username)}</h2><div class="sub">Warga · ${esc(u.email)}</div></div>
+          <button class="ghost" style="margin-left:auto" onclick="navTo('browse')">Cari Jasa</button></div>
+        <div class="section-title">Pesanan saya (${n})</div>
+        ${list}
+      </div></div>`;
     }
+    function custBookingRow(b) {
+      const cancel = b.status === "pending" ? `<button class="del" onclick="cancelBooking(${b.id})">Batalkan</button>` : "";
+      return `<div class="svc-row"><div><div class="t">${esc(b.provider_name)} ${bookBadge(b.status)}</div>
+        <div class="s">${b.service_title ? esc(b.service_title) + " · " : ""}${b.preferred_time ? "🕑 " + esc(b.preferred_time) : "tanpa waktu khusus"}</div>
+        ${b.note ? `<div class="s" style="margin-top:4px">“${esc(b.note)}”</div>` : ""}</div>
+        ${cancel}</div>`;
+    }
+    async function cancelBooking(id) { await api(`/bookings/${id}/cancel`, { method: "POST" }); showDashboard(); }
     async function renderProviderDashboard(dash) {
       const { ok, status, data: profile } = await api("/providers/me");
       if (status === 404) return renderProfileForm(dash, null);
       if (!ok) { dash.innerHTML = `<div class="empty">Gagal memuat profil.</div>`; return; }
       window.CURRENT_PROFILE = profile;
       const services = profile.services || [];
+      const { data: incoming } = await api("/bookings/incoming");
+      const nb = (incoming || []).length;
+      const bookingList = nb
+        ? incoming.map(provBookingRow).join("")
+        : `<div class="empty" style="padding:24px 0">Belum ada pesanan masuk.</div>`;
       const cat = (services[0] && services[0].category) || "lainnya";
       const ver = profile.is_verified ? `<span class="badge on">${VERIF_ICON}Terverifikasi</span>` : `<span class="badge off">Menunggu verifikasi</span>`;
       dash.innerHTML = `<div class="panel">
@@ -731,12 +834,24 @@
             <button class="ghost" style="margin-left:auto" onclick="renderProfileForm(document.getElementById('dashboard'), CURRENT_PROFILE)">Edit profil</button>
           </div>
           ${profile.headline ? `<p class="bio" style="font-weight:500">${esc(profile.headline)}</p>` : ""}
+          <div class="section-title">Pesanan masuk (${nb})</div>
+          ${bookingList}
           <div class="section-title">Layanan saya (${services.length})</div>
           <div id="svc-list">${services.map(svcRow).join("") || '<div class="empty" style="padding:28px 0">Belum ada layanan. Tambahkan di bawah 👇</div>'}</div>
           <div class="section-title">Tambah layanan</div>
           ${serviceForm()}
         </div></div>`;
     }
+    function provBookingRow(b) {
+      let actions = "";
+      if (b.status === "pending") actions = `<button class="btn-mini" onclick="setBookStatus(${b.id},'accepted')">Terima</button><button class="del" onclick="setBookStatus(${b.id},'rejected')">Tolak</button>`;
+      else if (b.status === "accepted") actions = `<button class="btn-mini" onclick="setBookStatus(${b.id},'completed')">Tandai selesai</button>`;
+      return `<div class="svc-row"><div><div class="t">${esc(b.customer_username)} ${bookBadge(b.status)}</div>
+        <div class="s">${b.service_title ? esc(b.service_title) + " · " : ""}${b.preferred_time ? "🕑 " + esc(b.preferred_time) : "tanpa waktu khusus"}</div>
+        ${b.note ? `<div class="s" style="margin-top:4px">“${esc(b.note)}”</div>` : ""}</div>
+        <div class="row-actions">${actions}</div></div>`;
+    }
+    async function setBookStatus(id, st) { await api(`/bookings/${id}/status`, { method: "POST", body: JSON.stringify({ status: st }) }); showDashboard(); }
     function svcRow(s) {
       const m = catMeta(s.category);
       return `<div class="svc-row"><div><div class="t">${esc(s.title)}</div>

@@ -130,6 +130,32 @@ Base prefix: `/api/v1`
 | PATCH  | `/api/v1/providers/me/services/{id}`  | provider | Update my service                   |
 | DELETE | `/api/v1/providers/me/services/{id}`  | provider | Delete my service                   |
 
+**Reviews (ulasan)**
+
+| Method | Path                              | Access   | Description                         |
+| ------ | --------------------------------- | -------- | ----------------------------------- |
+| GET    | `/api/v1/providers/{id}/reviews`  | public   | List a provider's reviews           |
+| POST   | `/api/v1/providers/{id}/reviews`  | user     | Add/update my review (1–5 + comment)|
+
+**Bookings (pemesanan)**
+
+| Method | Path                              | Access   | Description                          |
+| ------ | --------------------------------- | -------- | ------------------------------------ |
+| POST   | `/api/v1/bookings`                | user     | Book a provider/service              |
+| GET    | `/api/v1/bookings/me`             | user     | Bookings I placed                    |
+| GET    | `/api/v1/bookings/incoming`       | provider | Bookings addressed to me             |
+| POST   | `/api/v1/bookings/{id}/status`    | provider | Accept / reject / complete           |
+| POST   | `/api/v1/bookings/{id}/cancel`    | user     | Cancel my pending booking            |
+
+**Admin (pengelola)**
+
+| Method | Path                                       | Access | Description                  |
+| ------ | ------------------------------------------ | ------ | ---------------------------- |
+| GET    | `/api/v1/admin/stats`                      | admin  | Platform counts              |
+| GET    | `/api/v1/admin/providers`                  | admin  | List all providers           |
+| POST   | `/api/v1/admin/providers/{id}/verify`      | admin  | Verify a provider            |
+| POST   | `/api/v1/admin/providers/{id}/unverify`    | admin  | Remove verification          |
+
 | Method | Path        | Description       |
 | ------ | ----------- | ----------------- |
 | GET    | `/health`   | Liveness probe    |
@@ -185,7 +211,19 @@ Per the proposal's mandatory (*Wajib*) tier-1 features:
 - [x] Profil penyedia (skills, services, pricing)
 - [x] Pencarian & filter penyedia (browse)
 - [x] Dasbor penyedia (kelola profil & layanan)
-- [ ] Verifikasi identitas penyedia (admin/pengelola)
-- [ ] Sistem pemesanan (booking)
-- [ ] Ulasan & penilaian
-- [ ] Dasbor pengelola
+- [x] Verifikasi identitas penyedia (admin/pengelola)
+- [x] Sistem pemesanan (booking)
+- [x] Ulasan & penilaian
+- [x] Dasbor pengelola
+
+## Provisioning an admin (pengelola)
+
+Admin accounts can't be created through the public API. Create one locally with:
+
+```bash
+python -m app.scripts.create_admin <username> <email> <password>
+```
+
+If the username already exists it is promoted to the admin role. Then log in
+through the web client to reach the pengelola dashboard (verify providers, view
+stats).

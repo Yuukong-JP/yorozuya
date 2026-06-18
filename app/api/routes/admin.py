@@ -8,6 +8,7 @@ from app.api.deps import get_current_admin
 from app.core.database import get_db
 from app.crud import provider as provider_crud
 from app.crud import user as user_crud
+from app.models.booking import Booking
 from app.models.enums import UserRole
 from app.models.provider import ProviderProfile, Review
 from app.models.user import User
@@ -36,12 +37,14 @@ async def admin_stats(
         )
     )
     reviews = await _count(select(func.count()).select_from(Review))
+    bookings = await _count(select(func.count()).select_from(Booking))
     return {
         "providers": providers,
         "verified_providers": verified,
         "pending_providers": providers - verified,
         "customers": customers,
         "reviews": reviews,
+        "bookings": bookings,
     }
 
 
