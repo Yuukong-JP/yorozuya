@@ -59,7 +59,9 @@ async def list_profiles(
     limit: int = 20,
     offset: int = 0,
 ) -> list[ProviderProfile]:
-    stmt = select(ProviderProfile)
+    stmt = select(ProviderProfile).options(
+        selectinload(ProviderProfile.services)
+    )
     if q:
         pattern = f"%{q}%"
         stmt = stmt.where(
@@ -84,7 +86,19 @@ async def list_profiles(
         .offset(offset)
     )
     result = await db.execute(stmt)
-    return list(result.scalars().all())
+    profiles = list(result.scalars().all())
+    # Attach lightweight aggregates used by browse cards.
+    for profile in profiles:
+        active = [s for s in profile.services if s.is_active]
+        profile.service_count = len(active)
+        if active:
+            cheapest = min(active, key=lambda s: s.price)
+            profile.starting_price = cheapest.price
+            profile.primary_category = cheapest.category
+        else:
+            profile.starting_price = None
+            profile.primary_category = None
+    return profiles
 
 
 # --- Services ----------------------------------------------------------------

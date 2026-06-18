@@ -3,145 +3,170 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KOLEGA</title>
+  <title>KOLEGA — Cari jasa tepercaya di kotamu</title>
   <style>
     :root {
-      --bg: #fbfbfa; --card: #fff; --ink: #18181b; --muted: #71717a; --faint: #a1a1aa;
-      --line: #ececec; --line-soft: #f3f3f3; --accent: #4f46e5; --accent-weak: #eef0fe;
-      --ok: #15803d; --ok-bg: #f0fdf4; --err: #dc2626;
+      --bg: #f7f7f8; --card: #fff; --ink: #18181b; --ink2: #3f3f46; --muted: #71717a; --faint: #a1a1aa;
+      --line: #ececef; --line-soft: #f4f4f5; --accent: #4f46e5; --accent-2: #7c3aed; --accent-weak: #eef0fe;
+      --ok: #15803d; --ok-bg: #ecfdf3; --err: #dc2626;
+      --shadow: 0 1px 2px rgba(24,24,27,.04), 0 12px 28px rgba(24,24,27,.06);
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0; background: var(--bg); color: var(--ink);
+    body { margin: 0; background: var(--bg); color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
+      -webkit-font-smoothing: antialiased; }
     button { font-family: inherit; cursor: pointer; }
     .hidden { display: none !important; }
+    a { color: inherit; }
 
     /* Top bar */
-    .topbar {
-      position: sticky; top: 0; z-index: 10; background: rgba(251,251,250,0.85);
-      backdrop-filter: saturate(180%) blur(8px);
-      border-bottom: 1px solid var(--line);
-      display: flex; align-items: center; gap: 20px;
-      padding: 14px 22px;
-    }
-    .brand-sm { font-size: 15px; font-weight: 700; letter-spacing: 0.24em; padding-left: 0.24em; }
-    .nav { display: flex; gap: 6px; }
-    .navlink {
-      border: 0; background: none; padding: 7px 12px; border-radius: 8px;
-      font-size: 14px; color: var(--muted); font-weight: 500;
-    }
+    .topbar { position: sticky; top: 0; z-index: 20; background: rgba(247,247,248,.82);
+      backdrop-filter: saturate(180%) blur(10px); border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; gap: 18px; padding: 13px 24px; }
+    .brand { display: flex; align-items: center; gap: 9px; cursor: pointer; }
+    .brand .dot { width: 22px; height: 22px; border-radius: 7px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+    .brand .name { font-size: 15px; font-weight: 700; letter-spacing: 0.22em; padding-left: 0.22em; }
+    .nav { display: flex; gap: 4px; margin-left: 6px; }
+    .navlink { border: 0; background: none; padding: 7px 13px; border-radius: 9px; font-size: 14px; color: var(--muted); font-weight: 500; }
     .navlink:hover { background: var(--line-soft); color: var(--ink); }
     .navlink.active { background: var(--ink); color: #fff; }
-    .userbox { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 13.5px; }
+    .userbox { margin-left: auto; display: flex; align-items: center; gap: 11px; font-size: 13.5px; }
     .userbox .uname { font-weight: 600; }
-    .userbox .role-chip { font-size: 11px; color: var(--accent); background: var(--accent-weak); padding: 2px 8px; border-radius: 999px; font-weight: 600; }
-    .link-btn { border: 0; background: none; color: var(--muted); font-size: 13.5px; padding: 6px 8px; border-radius: 7px; }
+    .role-chip { font-size: 11px; color: var(--accent); background: var(--accent-weak); padding: 3px 9px; border-radius: 999px; font-weight: 600; }
+    .ghost { border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 9px; padding: 7px 14px; font-size: 13.5px; font-weight: 600; }
+    .ghost:hover { border-color: #d4d4d8; }
+    .link-btn { border: 0; background: none; color: var(--muted); font-size: 13.5px; }
     .link-btn:hover { color: var(--err); }
 
-    main { max-width: 940px; margin: 0 auto; padding: 32px 22px 80px; }
-    .h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 4px; }
-    .lead { color: var(--muted); font-size: 14px; margin: 0 0 24px; }
+    main { max-width: 1040px; margin: 0 auto; padding: 0 24px 90px; }
 
-    /* Search */
-    .search { display: flex; gap: 10px; margin-bottom: 26px; flex-wrap: wrap; }
-    .search input, .search select {
-      padding: 11px 13px; font-size: 14px; border: 1px solid var(--line); border-radius: 9px;
-      background: #fff; color: var(--ink); outline: none;
-    }
-    .search input { flex: 1; min-width: 200px; }
-    .search input:focus, .search select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,0.12); }
-    .btn-dark { padding: 11px 18px; border: 0; border-radius: 9px; background: var(--ink); color: #fff; font-weight: 600; font-size: 14px; }
-    .btn-dark:hover { opacity: 0.88; }
+    /* Hero */
+    .hero { text-align: center; padding: 56px 0 30px; }
+    .hero h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -0.03em; margin: 0 0 12px; line-height: 1.1; }
+    .hero h1 .grad { background: linear-gradient(120deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero p { color: var(--muted); font-size: 16px; margin: 0 auto 26px; max-width: 540px; }
+    .searchbar { display: flex; align-items: center; gap: 8px; max-width: 560px; margin: 0 auto;
+      background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 7px 7px 7px 16px; box-shadow: var(--shadow); }
+    .searchbar:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(79,70,229,.1); }
+    .searchbar svg { color: var(--faint); flex: none; }
+    .searchbar input { flex: 1; border: 0; outline: 0; font-size: 15px; padding: 8px 4px; background: none; color: var(--ink); }
+    .searchbar button { border: 0; background: var(--ink); color: #fff; font-weight: 600; font-size: 14px; padding: 11px 20px; border-radius: 10px; }
+    .searchbar button:hover { opacity: .9; }
 
-    /* Cards grid */
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-    .pcard {
-      background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px;
-      transition: border-color 0.15s, box-shadow 0.15s; cursor: pointer;
-    }
-    .pcard:hover { border-color: #dcdce0; box-shadow: 0 6px 20px rgba(24,24,27,0.06); }
-    .pcard .top { display: flex; align-items: center; gap: 12px; }
-    .pcard .ava { width: 42px; height: 42px; border-radius: 50%; background: var(--accent); color: #fff;
-      display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 17px; flex: none; }
-    .pcard .nm { font-weight: 600; font-size: 15px; }
-    .pcard .pf { color: var(--muted); font-size: 13px; }
-    .pcard .hl { color: var(--muted); font-size: 13px; margin-top: 12px; min-height: 18px; }
-    .pcard .meta { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-soft); }
-    .pcard .city { color: var(--faint); font-size: 12.5px; }
-    .badge { display: inline-block; padding: 2px 9px; border-radius: 7px; font-size: 11px; font-weight: 600; }
-    .badge.on { background: var(--ok-bg); color: var(--ok); }
-    .badge.off { background: #f4f4f5; color: var(--muted); }
-    .empty { color: var(--faint); text-align: center; padding: 48px 0; font-size: 14px; }
+    /* Category chips */
+    .chips { display: flex; gap: 9px; overflow-x: auto; padding: 26px 2px 6px; margin-bottom: 18px; scrollbar-width: none; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip { flex: none; display: flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: #fff;
+      border-radius: 999px; padding: 9px 15px; font-size: 13.5px; font-weight: 500; color: var(--ink2); white-space: nowrap; }
+    .chip:hover { border-color: #d4d4d8; }
+    .chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .chip .emo { font-size: 15px; }
 
-    /* Detail + service list */
-    .panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 26px; }
-    .back { color: var(--muted); font-size: 13px; border: 0; background: none; padding: 0; margin-bottom: 18px; }
+    .row-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 16px; }
+    .row-head h2 { font-size: 17px; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+    .row-head .count { color: var(--faint); font-size: 13px; }
+
+    /* Gig grid */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(248px, 1fr)); gap: 18px; }
+    .gig { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+      cursor: pointer; transition: transform .12s, box-shadow .15s, border-color .15s; }
+    .gig:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: #e2e2e6; }
+    .cover { height: 96px; position: relative; display: flex; align-items: center; justify-content: center; }
+    .cover .emo { font-size: 40px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.18)); opacity: .95; }
+    .cover .catpill { position: absolute; top: 10px; left: 10px; font-size: 11px; font-weight: 600;
+      background: rgba(255,255,255,.92); color: var(--ink); padding: 3px 9px; border-radius: 999px; }
+    .gig .body { padding: 0 16px 16px; position: relative; }
+    .gig .ava { width: 42px; height: 42px; border-radius: 50%; border: 3px solid #fff; margin-top: -21px;
+      background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; }
+    .gig .nm { font-weight: 700; font-size: 15px; margin-top: 10px; display: flex; align-items: center; gap: 6px; }
+    .gig .pf { color: var(--muted); font-size: 13px; margin-top: 1px; }
+    .gig .hl { color: var(--ink2); font-size: 13px; margin-top: 10px; line-height: 1.45; min-height: 18px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .gig .foot { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--line-soft); }
+    .gig .price small { color: var(--faint); font-weight: 500; font-size: 11px; display: block; }
+    .gig .price b { font-size: 15px; }
+    .gig .scount { color: var(--faint); font-size: 12px; }
+    .verif { display: inline-flex; align-items: center; gap: 3px; color: var(--accent); }
+    .verif svg { width: 14px; height: 14px; }
+    .empty { grid-column: 1/-1; color: var(--faint); text-align: center; padding: 56px 0; font-size: 14px; }
+
+    /* Detail */
+    .panel { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow); }
+    .back { color: var(--muted); font-size: 13.5px; border: 0; background: none; padding: 0; margin: 4px 0 18px; }
     .back:hover { color: var(--ink); }
-    .svc { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-top: 12px; }
-    .svc .st { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-    .svc .stitle { font-weight: 600; font-size: 14.5px; }
-    .svc .price { font-weight: 700; color: var(--accent); white-space: nowrap; }
-    .svc .unit { font-weight: 500; color: var(--faint); font-size: 12px; }
-    .svc .cat { font-size: 11px; color: var(--muted); background: var(--line-soft); padding: 2px 8px; border-radius: 6px; }
-    .svc .desc { color: var(--muted); font-size: 13px; margin-top: 8px; }
+    .banner { height: 130px; }
+    .detail-body { padding: 0 30px 30px; }
+    .detail-head { display: flex; align-items: flex-end; gap: 16px; margin-top: -34px; }
+    .detail-head .ava { width: 76px; height: 76px; border-radius: 20px; border: 4px solid #fff;
+      display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 30px; }
+    .detail-head .meta { padding-bottom: 4px; }
+    .detail-head h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+    .detail-head .sub { color: var(--muted); font-size: 14px; margin-top: 3px; }
+    .bio { color: var(--ink2); font-size: 14.5px; line-height: 1.6; margin: 18px 0 0; }
+    .contact { display: inline-flex; gap: 8px; align-items: center; margin-top: 14px; font-size: 13.5px; color: var(--muted); }
+    .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--faint); margin: 26px 0 14px; }
+    .svc { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-top: 12px; transition: border-color .15s; }
+    .svc:hover { border-color: #e2e2e6; }
+    .svc .st { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+    .svc .stitle { font-weight: 700; font-size: 15px; }
+    .svc .scat { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--ink2); background: var(--line-soft); padding: 3px 9px; border-radius: 999px; margin-top: 7px; }
+    .svc .price { text-align: right; white-space: nowrap; }
+    .svc .price b { font-size: 17px; color: var(--accent); }
+    .svc .price small { display: block; color: var(--faint); font-size: 11px; font-weight: 500; }
+    .svc .desc { color: var(--muted); font-size: 13.5px; margin-top: 10px; line-height: 1.5; }
 
-    /* Auth card */
-    .center-wrap { display: flex; justify-content: center; }
-    .card.auth { width: 100%; max-width: 400px; background: var(--card); border: 1px solid var(--line);
-      border-radius: 16px; box-shadow: 0 1px 2px rgba(24,24,27,0.04), 0 12px 32px rgba(24,24,27,0.05); }
-    .brand { padding: 32px 32px 0; text-align: center; }
-    .brand .mark { font-size: 16px; font-weight: 700; letter-spacing: 0.28em; padding-left: 0.28em; }
-    .brand .tag { color: var(--faint); font-size: 12.5px; margin-top: 8px; }
-    .tabs { display: flex; gap: 28px; margin: 26px 32px 0; border-bottom: 1px solid var(--line); }
+    /* Auth + dashboard */
+    .center-wrap { display: flex; justify-content: center; padding-top: 40px; }
+    .card.auth { width: 100%; max-width: 410px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+    .auth-brand { padding: 34px 34px 0; text-align: center; }
+    .auth-brand .dot { width: 30px; height: 30px; border-radius: 9px; margin: 0 auto 12px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+    .auth-brand .mark { font-size: 16px; font-weight: 700; letter-spacing: 0.26em; padding-left: 0.26em; }
+    .auth-brand .tag { color: var(--faint); font-size: 12.5px; margin-top: 8px; }
+    .tabs { display: flex; gap: 28px; margin: 26px 34px 0; border-bottom: 1px solid var(--line); }
     .tabs button { background: none; border: 0; padding: 0 0 12px; font-size: 14px; color: var(--faint); position: relative; }
     .tabs button.active { color: var(--ink); font-weight: 600; }
     .tabs button.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--ink); border-radius: 2px; }
-
-    form { padding: 22px 32px 32px; }
+    form { padding: 22px 34px 32px; }
     label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 16px 0 7px; }
-    form label:first-of-type, .field:first-child label { margin-top: 2px; }
-    input, select, textarea {
-      width: 100%; padding: 11px 13px; font-size: 14px; color: var(--ink); background: #fff;
-      border: 1px solid var(--line); border-radius: 9px; outline: none; font-family: inherit;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    textarea { resize: vertical; min-height: 70px; }
-    input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,0.12); }
+    form > label:first-of-type, .field:first-child > label { margin-top: 2px; }
+    input, select, textarea { width: 100%; padding: 11px 13px; font-size: 14px; color: var(--ink); background: #fff;
+      border: 1px solid var(--line); border-radius: 10px; outline: none; font-family: inherit; transition: border-color .15s, box-shadow .15s; }
+    textarea { resize: vertical; min-height: 72px; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,.12); }
     .role-pick { display: flex; gap: 10px; }
-    .role-opt { flex: 1; text-align: left; padding: 12px 13px; border: 1px solid var(--line); border-radius: 11px; background: #fff; }
+    .role-opt { flex: 1; text-align: left; padding: 12px 13px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
     .role-opt .role-title { display: block; font-size: 13.5px; font-weight: 600; color: var(--muted); }
     .role-opt .role-desc { display: block; font-size: 11.5px; color: var(--faint); margin-top: 2px; }
     .role-opt.active { border-color: var(--accent); background: var(--accent-weak); }
     .role-opt.active .role-title { color: var(--accent); }
-    .btn { width: 100%; margin-top: 24px; padding: 12px; border: 0; border-radius: 9px; background: var(--ink); color: #fff; font-size: 14.5px; font-weight: 600; }
-    .btn:hover { opacity: 0.88; }
+    .btn { width: 100%; margin-top: 24px; padding: 12px; border: 0; border-radius: 10px;
+      background: linear-gradient(120deg, var(--accent), var(--accent-2)); color: #fff; font-size: 14.5px; font-weight: 600; }
+    .btn:hover { opacity: .92; }
+    .btn.dark { background: var(--ink); }
     .msg { margin-top: 14px; font-size: 13px; text-align: center; min-height: 18px; }
     .msg.ok { color: var(--ok); } .msg.err { color: var(--err); }
 
-    /* Dashboard */
-    .dash-head { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
-    .dash-head .ava { width: 52px; height: 52px; border-radius: 50%; background: var(--accent); color: #fff;
-      display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 20px; }
-    .dash-head h2 { margin: 0; font-size: 18px; font-weight: 600; }
-    .dash-head .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
-    .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 28px 0 12px; }
-    .row2 { display: flex; gap: 12px; }
-    .row2 > .field { flex: 1; }
-    .field { margin-bottom: 2px; }
+    .dash-head { display: flex; align-items: center; gap: 15px; margin-bottom: 6px; }
+    .dash-head .ava { width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 22px; }
+    .dash-head h2 { margin: 0; font-size: 19px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .dash-head .sub { color: var(--muted); font-size: 13.5px; margin-top: 2px; }
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
+    .badge.on { background: var(--ok-bg); color: var(--ok); }
+    .badge.off { background: #f4f4f5; color: var(--muted); }
     .svc-row { display: flex; justify-content: space-between; align-items: center; gap: 12px;
-      border: 1px solid var(--line); border-radius: 11px; padding: 13px 15px; margin-top: 10px; }
-    .svc-row .info .t { font-weight: 600; font-size: 14px; }
-    .svc-row .info .s { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
-    .del { border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 8px; padding: 6px 11px; font-size: 12.5px; }
+      border: 1px solid var(--line); border-radius: 13px; padding: 14px 16px; margin-top: 11px; }
+    .svc-row .t { font-weight: 600; font-size: 14.5px; }
+    .svc-row .s { color: var(--muted); font-size: 12.5px; margin-top: 3px; display: flex; align-items: center; gap: 6px; }
+    .del { border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 9px; padding: 7px 12px; font-size: 12.5px; }
     .del:hover { border-color: #f1c4c4; color: var(--err); }
+    .row2 { display: flex; gap: 12px; } .row2 > .field { flex: 1; } .field { margin-bottom: 2px; }
+    .pill-cat { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--ink2); background: var(--line-soft); padding: 2px 8px; border-radius: 999px; }
   </style>
 </head>
 <body>
   <header class="topbar">
-    <div class="brand-sm">KOLEGA</div>
+    <div class="brand" onclick="navTo('browse')"><div class="dot"></div><div class="name">KOLEGA</div></div>
     <nav class="nav">
       <button class="navlink active" data-nav="browse" onclick="navTo('browse')">Cari Jasa</button>
       <button class="navlink" data-nav="account" onclick="navTo('account')">Akun</button>
@@ -153,13 +178,17 @@
     <!-- BROWSE -->
     <section id="view-browse" class="view">
       <div id="browse-home">
-        <h1 class="h1">Cari jasa di kotamu</h1>
-        <p class="lead">Temukan penyedia jasa tepercaya di Padang Panjang — dari tukang las sampai guru les.</p>
-        <div class="search">
-          <input id="search-q" placeholder="Cari nama atau keahlian…" onkeydown="if(event.key==='Enter')loadBrowse()" />
-          <select id="search-cat"></select>
-          <button class="btn-dark" onclick="loadBrowse()">Cari</button>
+        <div class="hero">
+          <h1>Keahlian warga, <span class="grad">satu ketukan</span> saja</h1>
+          <p>Temukan penyedia jasa tepercaya di Padang Panjang — dari tukang las, penjahit, sampai guru les privat.</p>
+          <div class="searchbar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="search-q" placeholder="Mau cari jasa apa hari ini?" onkeydown="if(event.key==='Enter')loadBrowse()" />
+            <button onclick="loadBrowse()">Cari</button>
+          </div>
         </div>
+        <div class="chips" id="cat-chips"></div>
+        <div class="row-head"><h2 id="browse-title">Penyedia terbaru</h2><span class="count" id="browse-count"></span></div>
         <div id="browse-list" class="grid"></div>
       </div>
       <div id="browse-detail" class="hidden"></div>
@@ -169,10 +198,8 @@
     <section id="view-account" class="view hidden">
       <div id="auth-card" class="center-wrap">
         <div class="card auth">
-          <div class="brand">
-            <div class="mark">KOLEGA</div>
-            <div class="tag">Kolaborasi Layanan Ekonomi &amp; Geliat Warga</div>
-          </div>
+          <div class="auth-brand"><div class="dot"></div><div class="mark">KOLEGA</div>
+            <div class="tag">Kolaborasi Layanan Ekonomi &amp; Geliat Warga</div></div>
           <div class="tabs">
             <button id="tab-login" class="active" onclick="switchTab('login')">Masuk</button>
             <button id="tab-register" onclick="switchTab('register')">Daftar</button>
@@ -189,11 +216,9 @@
             <label>Daftar sebagai</label>
             <div class="role-pick">
               <button type="button" class="role-opt active" data-role="customer" onclick="pickRole(this)">
-                <span class="role-title">Warga</span><span class="role-desc">Cari jasa</span>
-              </button>
+                <span class="role-title">Warga</span><span class="role-desc">Cari jasa</span></button>
               <button type="button" class="role-opt" data-role="provider" onclick="pickRole(this)">
-                <span class="role-title">Penyedia</span><span class="role-desc">Tawarkan jasa</span>
-              </button>
+                <span class="role-title">Penyedia</span><span class="role-desc">Tawarkan jasa</span></button>
             </div>
             <label for="reg-username">Username</label>
             <input id="reg-username" placeholder="budi_las" minlength="3" maxlength="50" required />
@@ -214,44 +239,39 @@
     const API = "/api/v1";
     const TOKEN_KEY = "kolega_token";
     const ROLE_LABELS = { customer: "Warga", provider: "Penyedia", admin: "Pengelola" };
-    const CATS = [
-      ["les_privat", "Les Privat"], ["tukang_las", "Tukang Las"], ["servis_elektronik", "Servis Elektronik"],
-      ["jahit", "Jahit & Permak"], ["masak_katering", "Masak & Katering"], ["fotografi", "Fotografi"],
-      ["desain", "Desain"], ["bangunan", "Tukang Bangunan"], ["kebersihan", "Kebersihan & ART"],
-      ["perawatan", "Perawatan Lansia"], ["lainnya", "Lainnya"],
-    ];
-    const CAT_LABEL = Object.fromEntries(CATS);
+    const CATS = {
+      les_privat: { label: "Les Privat", emo: "📚", g: ["#6366f1", "#8b5cf6"] },
+      tukang_las: { label: "Tukang Las", emo: "🔧", g: ["#f97316", "#fb923c"] },
+      servis_elektronik: { label: "Servis Elektronik", emo: "🔌", g: ["#0ea5e9", "#38bdf8"] },
+      jahit: { label: "Jahit & Permak", emo: "🧵", g: ["#ec4899", "#f472b6"] },
+      masak_katering: { label: "Masak & Katering", emo: "🍳", g: ["#ef4444", "#f87171"] },
+      fotografi: { label: "Fotografi", emo: "📷", g: ["#14b8a6", "#2dd4bf"] },
+      desain: { label: "Desain", emo: "🎨", g: ["#a855f7", "#c084fc"] },
+      bangunan: { label: "Tukang Bangunan", emo: "🧱", g: ["#eab308", "#facc15"] },
+      kebersihan: { label: "Kebersihan & ART", emo: "🧹", g: ["#22c55e", "#4ade80"] },
+      perawatan: { label: "Perawatan Lansia", emo: "🩺", g: ["#06b6d4", "#22d3ee"] },
+      lainnya: { label: "Lainnya", emo: "✨", g: ["#64748b", "#94a3b8"] },
+    };
+    const catMeta = (c) => CATS[c] || CATS.lainnya;
+    const grad = (c) => { const m = catMeta(c); return `linear-gradient(135deg, ${m.g[0]}, ${m.g[1]})`; };
     let currentUser = null;
+    let activeCat = "";
 
-    // --- helpers ---
     const token = () => localStorage.getItem(TOKEN_KEY);
     const authH = () => (token() ? { Authorization: `Bearer ${token()}` } : {});
-    const esc = (s) => (s == null ? "" : String(s).replace(/[&<>"']/g, (c) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])));
+    const esc = (s) => (s == null ? "" : String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])));
     const rp = (n) => "Rp " + Number(n).toLocaleString("id-ID");
     const initial = (s) => (s ? s[0].toUpperCase() : "?");
+    const VERIF_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l2.4 2.1 3.1-.5 1.3 2.9 2.9 1.3-.5 3.1L24 12l-2.1 2.4.5 3.1-2.9 1.3-1.3 2.9-3.1-.5L12 23l-2.4-2.1-3.1.5-1.3-2.9-2.9-1.3.5-3.1L0 12l2.1-2.4-.5-3.1 2.9-1.3L5.8 2.6l3.1.5z"/><path d="M10.5 14.6l-2.1-2.1-1.3 1.3 3.4 3.4 5.9-5.9-1.3-1.3z" fill="#fff"/></svg>';
 
     async function api(path, opts = {}) {
-      const res = await fetch(API + path, {
-        ...opts,
-        headers: { "Content-Type": "application/json", ...authH(), ...(opts.headers || {}) },
-      });
-      let data = null;
-      try { data = await res.json(); } catch (_) {}
+      const res = await fetch(API + path, { ...opts, headers: { "Content-Type": "application/json", ...authH(), ...(opts.headers || {}) } });
+      let data = null; try { data = await res.json(); } catch (_) {}
       return { ok: res.ok, status: res.status, data };
     }
-    function errText(data) {
-      if (!data || !data.detail) return null;
-      if (typeof data.detail === "string") return data.detail;
-      if (Array.isArray(data.detail)) return data.detail[0]?.msg || null;
-      return null;
-    }
-    function setMsg(id, text, ok) {
-      const el = document.getElementById(id);
-      el.textContent = text; el.className = "msg " + (ok ? "ok" : "err");
-    }
+    function errText(d) { if (!d || !d.detail) return null; if (typeof d.detail === "string") return d.detail; if (Array.isArray(d.detail)) return d.detail[0]?.msg || null; return null; }
+    function setMsg(id, t, ok) { const el = document.getElementById(id); el.textContent = t; el.className = "msg " + (ok ? "ok" : "err"); }
 
-    // --- navigation ---
     function navTo(view) {
       document.querySelectorAll(".navlink").forEach((b) => b.classList.toggle("active", b.dataset.nav === view));
       document.getElementById("view-browse").classList.toggle("hidden", view !== "browse");
@@ -259,7 +279,6 @@
       if (view === "browse") { showBrowseHome(); loadBrowse(); }
       if (view === "account") renderAccount();
     }
-
     function refreshUserbox() {
       const box = document.getElementById("userbox");
       if (currentUser) {
@@ -267,79 +286,95 @@
           <span class="role-chip">${ROLE_LABELS[currentUser.role] || currentUser.role}</span>
           <button class="link-btn" onclick="logout()">Keluar</button>`;
       } else {
-        box.innerHTML = `<button class="link-btn" onclick="navTo('account')">Masuk</button>`;
+        box.innerHTML = `<button class="ghost" onclick="navTo('account')">Masuk</button>`;
       }
     }
 
-    // --- browse ---
-    function showBrowseHome() {
-      document.getElementById("browse-home").classList.remove("hidden");
-      document.getElementById("browse-detail").classList.add("hidden");
+    function renderChips() {
+      const wrap = document.getElementById("cat-chips");
+      const all = `<button class="chip ${activeCat === "" ? "active" : ""}" onclick="setCat('')"><span class="emo">🗂️</span>Semua</button>`;
+      const rest = Object.entries(CATS).map(([k, m]) =>
+        `<button class="chip ${activeCat === k ? "active" : ""}" onclick="setCat('${k}')"><span class="emo">${m.emo}</span>${m.label}</button>`).join("");
+      wrap.innerHTML = all + rest;
     }
+    function setCat(c) { activeCat = c; renderChips(); loadBrowse(); }
+
+    function showBrowseHome() { document.getElementById("browse-home").classList.remove("hidden"); document.getElementById("browse-detail").classList.add("hidden"); }
+
     async function loadBrowse() {
       const q = document.getElementById("search-q").value.trim();
-      const cat = document.getElementById("search-cat").value;
       const params = new URLSearchParams();
       if (q) params.set("q", q);
-      if (cat) params.set("category", cat);
+      if (activeCat) params.set("category", activeCat);
       const { data } = await api(`/providers?${params.toString()}`);
       const list = document.getElementById("browse-list");
-      if (!data || data.length === 0) {
-        list.innerHTML = `<div class="empty" style="grid-column:1/-1">Belum ada penyedia yang cocok.</div>`;
-        return;
-      }
-      list.innerHTML = data.map(providerCard).join("");
+      const title = document.getElementById("browse-title");
+      const count = document.getElementById("browse-count");
+      title.textContent = activeCat ? catMeta(activeCat).label : (q ? `Hasil untuk “${q}”` : "Penyedia terbaru");
+      count.textContent = data ? `${data.length} penyedia` : "";
+      if (!data || data.length === 0) { list.innerHTML = `<div class="empty">Belum ada penyedia yang cocok. Coba kata kunci atau kategori lain.</div>`; return; }
+      list.innerHTML = data.map(gigCard).join("");
     }
-    function providerCard(p) {
-      const badge = p.is_verified
-        ? '<span class="badge on">Terverifikasi</span>' : '<span class="badge off">Baru</span>';
-      return `<div class="pcard" onclick="openProvider(${p.id})">
-        <div class="top">
-          <div class="ava">${initial(p.display_name)}</div>
-          <div><div class="nm">${esc(p.display_name)}</div><div class="pf">${esc(p.profession)}</div></div>
+    function gigCard(p) {
+      const cat = p.primary_category || "lainnya";
+      const m = catMeta(cat);
+      const price = p.starting_price != null
+        ? `<div class="price"><small>Mulai dari</small><b>${rp(p.starting_price)}</b></div>`
+        : `<div class="price"><small>&nbsp;</small><b style="color:var(--faint);font-size:13px">Belum ada layanan</b></div>`;
+      const verif = p.is_verified ? `<span class="verif" title="Terverifikasi">${VERIF_ICON}</span>` : "";
+      return `<div class="gig" onclick="openProvider(${p.id})">
+        <div class="cover" style="background:${grad(cat)}">
+          <span class="catpill">${m.emo} ${m.label}</span><span class="emo">${m.emo}</span>
         </div>
-        <div class="hl">${esc(p.headline || "")}</div>
-        <div class="meta"><span class="city">${esc(p.city || "")}</span>${badge}</div>
+        <div class="body">
+          <div class="ava" style="background:${grad(cat)}">${initial(p.display_name)}</div>
+          <div class="nm">${esc(p.display_name)} ${verif}</div>
+          <div class="pf">${esc(p.profession)}</div>
+          <div class="hl">${esc(p.headline || p.city || "")}</div>
+          <div class="foot">${price}<span class="scount">${p.service_count || 0} layanan</span></div>
+        </div>
       </div>`;
     }
+
     async function openProvider(id) {
       const { data: p, ok } = await api(`/providers/${id}`);
       if (!ok) return;
-      const badge = p.is_verified
-        ? '<span class="badge on">Terverifikasi</span>' : '<span class="badge off">Baru</span>';
+      const cat = (p.services && p.services[0] && p.services[0].category) || "lainnya";
+      const verif = p.is_verified ? `<span class="badge on">${VERIF_ICON}Terverifikasi</span>` : `<span class="badge off">Baru</span>`;
       const services = (p.services || []).filter((s) => s.is_active);
-      const svcHtml = services.length
-        ? services.map((s) => `<div class="svc">
-            <div class="st"><span class="stitle">${esc(s.title)}</span>
-              <span class="price">${rp(s.price)} <span class="unit">${esc(s.price_unit)}</span></span></div>
-            <div style="margin-top:8px"><span class="cat">${esc(CAT_LABEL[s.category] || s.category)}</span></div>
-            ${s.description ? `<div class="desc">${esc(s.description)}</div>` : ""}
-          </div>`).join("")
-        : `<div class="empty">Penyedia ini belum menambahkan layanan.</div>`;
+      const svc = services.length ? services.map((s) => {
+        const sm = catMeta(s.category);
+        return `<div class="svc"><div class="st">
+          <div><div class="stitle">${esc(s.title)}</div><div class="scat">${sm.emo} ${sm.label}</div></div>
+          <div class="price"><b>${rp(s.price)}</b><small>${esc(s.price_unit)}</small></div></div>
+          ${s.description ? `<div class="desc">${esc(s.description)}</div>` : ""}</div>`;
+      }).join("") : `<div class="empty" style="padding:32px 0">Penyedia ini belum menambahkan layanan.</div>`;
       document.getElementById("browse-home").classList.add("hidden");
       const d = document.getElementById("browse-detail");
       d.classList.remove("hidden");
-      d.innerHTML = `<div class="panel">
-        <button class="back" onclick="showBrowseHome()">← Kembali</button>
-        <div class="dash-head">
-          <div class="ava">${initial(p.display_name)}</div>
-          <div><h2>${esc(p.display_name)} ${badge}</h2>
-          <div class="sub">${esc(p.profession)}${p.area ? " · " + esc(p.area) : ""} · ${esc(p.city || "")}</div></div>
-        </div>
-        ${p.headline ? `<p class="lead">${esc(p.headline)}</p>` : ""}
-        ${p.bio ? `<p style="font-size:14px;color:#3f3f46;line-height:1.6">${esc(p.bio)}</p>` : ""}
-        ${p.phone ? `<p style="font-size:13px;color:var(--muted)">Kontak: ${esc(p.phone)}</p>` : ""}
-        <div class="section-title">Layanan</div>
-        ${svcHtml}
-      </div>`;
+      d.innerHTML = `<button class="back" onclick="showBrowseHome()">← Kembali ke pencarian</button>
+        <div class="panel">
+          <div class="banner" style="background:${grad(cat)}"></div>
+          <div class="detail-body">
+            <div class="detail-head">
+              <div class="ava" style="background:${grad(cat)}">${initial(p.display_name)}</div>
+              <div class="meta"><h2>${esc(p.display_name)} ${verif}</h2>
+                <div class="sub">${esc(p.profession)}${p.area ? " · " + esc(p.area) : ""} · ${esc(p.city || "")}</div></div>
+            </div>
+            ${p.headline ? `<p class="bio" style="font-weight:500">${esc(p.headline)}</p>` : ""}
+            ${p.bio ? `<p class="bio">${esc(p.bio)}</p>` : ""}
+            ${p.phone ? `<div class="contact">📞 ${esc(p.phone)}</div>` : ""}
+            <div class="section-title">Layanan (${services.length})</div>
+            ${svc}
+          </div>
+        </div>`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // --- account / auth ---
+    // account / auth
     function renderAccount() {
-      if (currentUser) { showDashboard(); } else {
-        document.getElementById("auth-card").classList.remove("hidden");
-        document.getElementById("dashboard").classList.add("hidden");
-      }
+      if (currentUser) showDashboard();
+      else { document.getElementById("auth-card").classList.remove("hidden"); document.getElementById("dashboard").classList.add("hidden"); }
     }
     function switchTab(which) {
       const login = which === "login";
@@ -349,18 +384,10 @@
       document.getElementById("register-form").classList.toggle("hidden", login);
     }
     let selectedRole = "customer";
-    function pickRole(btn) {
-      selectedRole = btn.dataset.role;
-      document.querySelectorAll(".role-opt").forEach((b) => b.classList.toggle("active", b === btn));
-    }
+    function pickRole(btn) { selectedRole = btn.dataset.role; document.querySelectorAll(".role-opt").forEach((b) => b.classList.toggle("active", b === btn)); }
     async function doRegister(e) {
       e.preventDefault();
-      const body = {
-        username: document.getElementById("reg-username").value.trim(),
-        email: document.getElementById("reg-email").value.trim(),
-        password: document.getElementById("reg-password").value,
-        role: selectedRole,
-      };
+      const body = { username: document.getElementById("reg-username").value.trim(), email: document.getElementById("reg-email").value.trim(), password: document.getElementById("reg-password").value, role: selectedRole };
       const { ok, data } = await api("/auth/register", { method: "POST", body: JSON.stringify(body) });
       if (ok) { setMsg("register-msg", "Akun dibuat! Silakan masuk.", true); setTimeout(() => switchTab("login"), 900); }
       else setMsg("register-msg", errText(data) || "Gagal mendaftar", false);
@@ -371,9 +398,7 @@
       const form = new URLSearchParams();
       form.set("username", document.getElementById("login-username").value.trim());
       form.set("password", document.getElementById("login-password").value);
-      const res = await fetch(`${API}/auth/login`, {
-        method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: form,
-      });
+      const res = await fetch(`${API}/auth/login`, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: form });
       const data = await res.json().catch(() => ({}));
       if (res.ok) { localStorage.setItem(TOKEN_KEY, data.access_token); await fetchMe(); navTo("account"); }
       else setMsg("login-msg", errText(data) || "Login gagal", false);
@@ -388,58 +413,56 @@
     }
     function logout() { localStorage.removeItem(TOKEN_KEY); currentUser = null; refreshUserbox(); navTo("browse"); }
 
-    // --- dashboard ---
+    // dashboard
     async function showDashboard() {
       document.getElementById("auth-card").classList.add("hidden");
-      const dash = document.getElementById("dashboard");
-      dash.classList.remove("hidden");
+      const dash = document.getElementById("dashboard"); dash.classList.remove("hidden");
       if (currentUser.role === "provider") return renderProviderDashboard(dash);
       renderCustomerDashboard(dash);
     }
     function renderCustomerDashboard(dash) {
       const u = currentUser;
-      dash.innerHTML = `<div class="center-wrap"><div class="card auth" style="max-width:420px">
-        <div class="brand"><div class="mark">KOLEGA</div></div>
-        <div style="padding:24px 32px 32px">
-          <div class="dash-head">
-            <div class="ava">${initial(u.username)}</div>
-            <div><h2>${esc(u.username)}</h2><div class="sub">Warga · ${esc(u.email)}</div></div>
-          </div>
-          <p class="lead">Kamu masuk sebagai <b>Warga</b>. Mulai cari jasa yang kamu butuhkan.</p>
-          <button class="btn" onclick="navTo('browse')">Cari Jasa</button>
+      dash.innerHTML = `<div class="center-wrap"><div class="card auth" style="max-width:430px">
+        <div class="auth-brand"><div class="dot"></div><div class="mark">KOLEGA</div></div>
+        <div style="padding:24px 34px 34px">
+          <div class="dash-head"><div class="ava">${initial(u.username)}</div>
+            <div><h2>${esc(u.username)}</h2><div class="sub">Warga · ${esc(u.email)}</div></div></div>
+          <p class="bio" style="margin-top:16px">Kamu masuk sebagai <b>Warga</b>. Yuk cari jasa yang kamu butuhkan.</p>
+          <button class="btn dark" onclick="navTo('browse')">Cari Jasa</button>
         </div></div></div>`;
     }
     async function renderProviderDashboard(dash) {
       const { ok, status, data: profile } = await api("/providers/me");
       if (status === 404) return renderProfileForm(dash, null);
       if (!ok) { dash.innerHTML = `<div class="empty">Gagal memuat profil.</div>`; return; }
-      const services = profile.services || [];
-      const verBadge = profile.is_verified
-        ? '<span class="badge on">Terverifikasi</span>' : '<span class="badge off">Menunggu verifikasi</span>';
-      dash.innerHTML = `<div class="panel">
-        <div class="dash-head">
-          <div class="ava">${initial(profile.display_name)}</div>
-          <div><h2>${esc(profile.display_name)} ${verBadge}</h2>
-          <div class="sub">${esc(profile.profession)} · ${esc(profile.city || "")}</div></div>
-          <button class="link-btn" style="margin-left:auto" onclick="renderProfileForm(document.getElementById('dashboard'), CURRENT_PROFILE)">Edit profil</button>
-        </div>
-        ${profile.headline ? `<p class="lead">${esc(profile.headline)}</p>` : ""}
-        <div class="section-title">Layanan saya (${services.length})</div>
-        <div id="svc-list">${services.map(svcRow).join("") || '<div class="empty">Belum ada layanan.</div>'}</div>
-        <div class="section-title">Tambah layanan</div>
-        ${serviceForm()}
-      </div>`;
       window.CURRENT_PROFILE = profile;
+      const services = profile.services || [];
+      const cat = (services[0] && services[0].category) || "lainnya";
+      const ver = profile.is_verified ? `<span class="badge on">${VERIF_ICON}Terverifikasi</span>` : `<span class="badge off">Menunggu verifikasi</span>`;
+      dash.innerHTML = `<div class="panel">
+        <div class="banner" style="background:${grad(cat)};height:90px"></div>
+        <div class="detail-body">
+          <div class="dash-head" style="margin-top:-28px;align-items:flex-end">
+            <div class="ava" style="border:4px solid #fff">${initial(profile.display_name)}</div>
+            <div style="padding-bottom:4px"><h2>${esc(profile.display_name)} ${ver}</h2>
+              <div class="sub">${esc(profile.profession)} · ${esc(profile.city || "")}</div></div>
+            <button class="ghost" style="margin-left:auto" onclick="renderProfileForm(document.getElementById('dashboard'), CURRENT_PROFILE)">Edit profil</button>
+          </div>
+          ${profile.headline ? `<p class="bio" style="font-weight:500">${esc(profile.headline)}</p>` : ""}
+          <div class="section-title">Layanan saya (${services.length})</div>
+          <div id="svc-list">${services.map(svcRow).join("") || '<div class="empty" style="padding:28px 0">Belum ada layanan. Tambahkan di bawah 👇</div>'}</div>
+          <div class="section-title">Tambah layanan</div>
+          ${serviceForm()}
+        </div></div>`;
     }
     function svcRow(s) {
-      return `<div class="svc-row">
-        <div class="info"><div class="t">${esc(s.title)}</div>
-          <div class="s">${esc(CAT_LABEL[s.category] || s.category)} · ${rp(s.price)} ${esc(s.price_unit)}</div></div>
-        <button class="del" onclick="deleteService(${s.id})">Hapus</button>
-      </div>`;
+      const m = catMeta(s.category);
+      return `<div class="svc-row"><div><div class="t">${esc(s.title)}</div>
+        <div class="s"><span class="pill-cat">${m.emo} ${m.label}</span> ${rp(s.price)} · ${esc(s.price_unit)}</div></div>
+        <button class="del" onclick="deleteService(${s.id})">Hapus</button></div>`;
     }
     function serviceForm() {
-      const opts = CATS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
+      const opts = Object.entries(CATS).map(([v, m]) => `<option value="${v}">${m.emo} ${m.label}</option>`).join("");
       return `<form onsubmit="return addService(event)">
         <div class="field"><label>Judul layanan</label><input id="svc-title" placeholder="mis. Pembuatan pagar besi" required minlength="3" /></div>
         <div class="row2">
@@ -449,14 +472,13 @@
         </div>
         <div class="field"><label>Deskripsi (opsional)</label><textarea id="svc-desc" placeholder="Detail layanan…"></textarea></div>
         <button class="btn" type="submit">Tambah layanan</button>
-        <div id="svc-msg" class="msg"></div>
-      </form>`;
+        <div id="svc-msg" class="msg"></div></form>`;
     }
     function renderProfileForm(dash, existing) {
       const p = existing || {};
-      dash.innerHTML = `<div class="panel" style="max-width:560px;margin:0 auto">
-        <h2 style="margin:0 0 4px;font-size:18px">${existing ? "Edit profil penyedia" : "Lengkapi profil penyedia"}</h2>
-        <p class="lead">Tampilkan keahlianmu agar warga bisa menemukanmu.</p>
+      dash.innerHTML = `<div class="panel" style="max-width:580px;margin:0 auto;padding:30px">
+        <h2 style="margin:0 0 4px;font-size:19px;font-weight:700">${existing ? "Edit profil penyedia" : "Lengkapi profil penyedia"}</h2>
+        <p class="bio" style="margin:0 0 8px">Tampilkan keahlianmu agar warga mudah menemukanmu.</p>
         <form onsubmit="return saveProfile(event, ${existing ? "true" : "false"})">
           <div class="row2">
             <div class="field"><label>Nama tampil</label><input id="pf-name" value="${esc(p.display_name || "")}" required minlength="2" /></div>
@@ -470,8 +492,7 @@
           <div class="field"><label>Tentang (opsional)</label><textarea id="pf-bio" placeholder="Ceritakan pengalamanmu…">${esc(p.bio || "")}</textarea></div>
           <button class="btn" type="submit">${existing ? "Simpan perubahan" : "Buat profil"}</button>
           <div id="pf-msg" class="msg"></div>
-        </form>
-      </div>`;
+        </form></div>`;
     }
     async function saveProfile(e, isEdit) {
       e.preventDefault();
@@ -483,11 +504,8 @@
         area: document.getElementById("pf-area").value.trim() || null,
         bio: document.getElementById("pf-bio").value.trim() || null,
       };
-      const { ok, data } = await api("/providers/me", {
-        method: isEdit ? "PATCH" : "POST", body: JSON.stringify(body),
-      });
-      if (ok) showDashboard();
-      else setMsg("pf-msg", errText(data) || "Gagal menyimpan", false);
+      const { ok, data } = await api("/providers/me", { method: isEdit ? "PATCH" : "POST", body: JSON.stringify(body) });
+      if (ok) showDashboard(); else setMsg("pf-msg", errText(data) || "Gagal menyimpan", false);
       return false;
     }
     async function addService(e) {
@@ -500,26 +518,12 @@
         description: document.getElementById("svc-desc").value.trim() || null,
       };
       const { ok, data } = await api("/providers/me/services", { method: "POST", body: JSON.stringify(body) });
-      if (ok) showDashboard();
-      else setMsg("svc-msg", errText(data) || "Gagal menambah layanan", false);
+      if (ok) showDashboard(); else setMsg("svc-msg", errText(data) || "Gagal menambah layanan", false);
       return false;
     }
-    async function deleteService(id) {
-      await api(`/providers/me/services/${id}`, { method: "DELETE" });
-      showDashboard();
-    }
+    async function deleteService(id) { await api(`/providers/me/services/${id}`, { method: "DELETE" }); showDashboard(); }
 
-    // --- init ---
-    function initCategories() {
-      const sel = document.getElementById("search-cat");
-      sel.innerHTML = `<option value="">Semua kategori</option>` +
-        CATS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
-    }
-    (async function init() {
-      initCategories();
-      await fetchMe();
-      navTo("browse");
-    })();
+    (async function init() { renderChips(); await fetchMe(); navTo("browse"); })();
   </script>
 </body>
 </html>

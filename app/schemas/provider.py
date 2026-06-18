@@ -40,6 +40,9 @@ class ProviderSummary(ProviderProfileBase):
 
     id: int
     is_verified: bool = False
+    service_count: int = 0
+    starting_price: int | None = None
+    primary_category: str | None = None
 
 
 class ProviderProfileRead(ProviderProfileBase):
