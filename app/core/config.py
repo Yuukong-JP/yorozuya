@@ -2,7 +2,7 @@
 
 from functools import lru_cache
 
-from pydantic import PostgresDsn, computed_field
+from pydantic import computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -20,11 +20,11 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
 
     # Database
-    POSTGRES_USER: str = "kolega"
-    POSTGRES_PASSWORD: str = "kolega"
-    POSTGRES_HOST: str = "localhost"
-    POSTGRES_PORT: int = 5432
-    POSTGRES_DB: str = "kolega"
+    # Defaults to a local SQLite file so the app runs with zero setup
+    # (no Docker / PostgreSQL needed). To use PostgreSQL instead, set
+    # DATABASE_URL, e.g.
+    #   DATABASE_URL=postgresql+asyncpg://kolega:kolega@localhost:5432/kolega
+    DATABASE_URL: str = "sqlite+aiosqlite:///./kolega.db"
 
     # Security
     SECRET_KEY: str = "change-me-to-a-random-secret-key"
@@ -33,33 +33,16 @@ class Settings(BaseSettings):
 
     @computed_field  # type: ignore[prop-decorator]
     @property
-    def DATABASE_URL(self) -> str:
-        """Async SQLAlchemy connection URL (asyncpg driver)."""
-        return str(
-            PostgresDsn.build(
-                scheme="postgresql+asyncpg",
-                username=self.POSTGRES_USER,
-                password=self.POSTGRES_PASSWORD,
-                host=self.POSTGRES_HOST,
-                port=self.POSTGRES_PORT,
-                path=self.POSTGRES_DB,
-            )
+    def SYNC_DATABASE_URL(self) -> str:
+        """Sync connection URL (used by Alembic), derived from DATABASE_URL."""
+        return self.DATABASE_URL.replace("+asyncpg", "").replace(
+            "+aiosqlite", ""
         )
 
     @computed_field  # type: ignore[prop-decorator]
     @property
-    def SYNC_DATABASE_URL(self) -> str:
-        """Sync connection URL (psycopg/psycopg2 style) used by Alembic."""
-        return str(
-            PostgresDsn.build(
-                scheme="postgresql",
-                username=self.POSTGRES_USER,
-                password=self.POSTGRES_PASSWORD,
-                host=self.POSTGRES_HOST,
-                port=self.POSTGRES_PORT,
-                path=self.POSTGRES_DB,
-            )
-        )
+    def DATABASE_IS_SQLITE(self) -> bool:
+        return self.DATABASE_URL.startswith("sqlite")
 
 
 @lru_cache

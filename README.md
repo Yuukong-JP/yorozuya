@@ -29,7 +29,7 @@ KOLEGA serves three groups that depend on one another:
 | --------------- | ---------------------------------------- |
 | Web framework   | FastAPI                                  |
 | ASGI server     | Uvicorn                                  |
-| Database        | PostgreSQL (async via `asyncpg`)         |
+| Database        | SQLite by default (zero setup); PostgreSQL (async via `asyncpg`) optional |
 | ORM             | SQLAlchemy 2.0 (async)                   |
 | Migrations      | Alembic                                  |
 | Validation      | Pydantic v2 / pydantic-settings          |
@@ -64,44 +64,45 @@ alembic/                 # Database migrations
 docker-compose.yml       # Local PostgreSQL
 ```
 
-## Getting started
+## Quick start (no Docker, no PostgreSQL)
 
-### 1. Configure environment
-
-```bash
-cp .env.example .env
-# Generate a real secret key:
-openssl rand -hex 32   # paste into SECRET_KEY
-```
-
-### 2. Start PostgreSQL
-
-```bash
-docker compose up -d
-```
-
-### 3. Install dependencies
+By default the app uses a local **SQLite** file (`kolega.db`) and creates its
+tables automatically on startup — so you only need Python:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-### 4. Run migrations
-
-```bash
-alembic upgrade head
-```
-
-### 5. Run the app
-
-```bash
 uvicorn app.main:app --reload
 ```
 
+Then open:
+
 - Web client: <http://localhost:8000/>
 - Interactive API docs: <http://localhost:8000/docs>
+
+That's it. Register an account (choose **Penyedia** to create a profile and
+list services, or **Warga** to browse). Data is stored in `kolega.db` in the
+project folder; delete that file to start fresh.
+
+> Set `SECRET_KEY` (`export SECRET_KEY=$(openssl rand -hex 32)` or via `.env`)
+> before any real/shared deployment — the built-in default is for local use only.
+
+## Using PostgreSQL instead (optional)
+
+For a production-like setup, point `DATABASE_URL` at PostgreSQL and use Alembic
+for migrations:
+
+```bash
+cp .env.example .env            # then set DATABASE_URL (see the file) + SECRET_KEY
+docker compose up -d            # starts local PostgreSQL
+pip install -r requirements.txt
+alembic upgrade head            # create tables
+uvicorn app.main:app --reload
+```
+
+Example `DATABASE_URL`:
+`postgresql+asyncpg://kolega:kolega@localhost:5432/kolega`
 
 ## API
 
