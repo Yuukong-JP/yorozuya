@@ -226,6 +226,12 @@
     .svc-row .s { color: var(--muted); font-size: 12.5px; margin-top: 3px; display: flex; align-items: center; gap: 6px; }
     .del { border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 9px; padding: 7px 12px; font-size: 12.5px; }
     .del:hover { border-color: #f1c4c4; color: var(--err); }
+    .btn-mini { border: 0; background: var(--accent); color: #fff; border-radius: 9px; padding: 8px 14px; font-size: 12.5px; font-weight: 600; }
+    .btn-mini:hover { opacity: .9; }
+    .astats { display: flex; gap: 12px; flex-wrap: wrap; margin: 6px 0 8px; }
+    .astat { flex: 1; min-width: 92px; border: 1px solid var(--line); border-radius: 13px; padding: 14px; text-align: center; }
+    .astat b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+    .astat span { color: var(--muted); font-size: 12px; }
     .row2 { display: flex; gap: 12px; } .row2 > .field { flex: 1; } .field { margin-bottom: 2px; }
     .pill-cat { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--ink2); background: var(--line-soft); padding: 2px 8px; border-radius: 999px; }
   </style>
@@ -661,8 +667,40 @@
     async function showDashboard() {
       document.getElementById("auth-card").classList.add("hidden");
       const dash = document.getElementById("dashboard"); dash.classList.remove("hidden");
+      if (currentUser.role === "admin") return renderAdminDashboard(dash);
       if (currentUser.role === "provider") return renderProviderDashboard(dash);
       renderCustomerDashboard(dash);
+    }
+    async function renderAdminDashboard(dash) {
+      const { data: stats } = await api("/admin/stats");
+      const { data: providers } = await api("/admin/providers");
+      const s = stats || {};
+      const statCard = (n, l) => `<div class="astat"><b>${n ?? 0}</b><span>${l}</span></div>`;
+      const rows = (providers || []).map((p) => {
+        const badge = p.is_verified
+          ? `<span class="badge on">${VERIF_ICON}Terverifikasi</span>`
+          : `<span class="badge off">Menunggu</span>`;
+        const btn = p.is_verified
+          ? `<button class="del" onclick="setVerify(${p.id}, false)">Cabut</button>`
+          : `<button class="btn-mini" onclick="setVerify(${p.id}, true)">Verifikasi</button>`;
+        return `<div class="svc-row"><div><div class="t">${esc(p.display_name)} ${badge}</div>
+          <div class="s">${esc(p.profession)} · ${p.service_count || 0} layanan · ⭐ ${Number(p.rating_avg || 0).toFixed(1)} (${p.rating_count || 0})</div></div>
+          ${btn}</div>`;
+      }).join("") || `<div class="empty" style="padding:24px 0">Belum ada penyedia terdaftar.</div>`;
+      dash.innerHTML = `<div class="panel"><div class="detail-body" style="padding-top:24px">
+        <div class="dash-head"><div class="ava">${initial(currentUser.username)}</div>
+          <div><h2>Dasbor Pengelola</h2><div class="sub">${esc(currentUser.username)} · pengelola KOLEGA</div></div></div>
+        <div class="astats">
+          ${statCard(s.providers, "penyedia")}${statCard(s.verified_providers, "terverifikasi")}
+          ${statCard(s.pending_providers, "menunggu")}${statCard(s.customers, "warga")}${statCard(s.reviews, "ulasan")}
+        </div>
+        <div class="section-title">Penyedia — verifikasi identitas</div>
+        ${rows}
+      </div></div>`;
+    }
+    async function setVerify(id, verified) {
+      await api(`/admin/providers/${id}/${verified ? "verify" : "unverify"}`, { method: "POST" });
+      showDashboard();
     }
     function renderCustomerDashboard(dash) {
       const u = currentUser;

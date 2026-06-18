@@ -61,3 +61,15 @@ async def get_current_provider(
             detail="Hanya penyedia yang dapat mengakses fitur ini",
         )
     return current_user
+
+
+async def get_current_admin(
+    current_user: User = Depends(get_current_active_user),
+) -> User:
+    """Ensure the current user is an administrator (pengelola)."""
+    if current_user.role != UserRole.ADMIN.value:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Hanya pengelola yang dapat mengakses fitur ini",
+        )
+    return current_user

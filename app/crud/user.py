@@ -35,6 +35,16 @@ async def create_user(db: AsyncSession, user_in: UserCreate) -> User:
     return user
 
 
+async def set_user_verified(
+    db: AsyncSession, user: User, verified: bool
+) -> User:
+    """Toggle a user's verification badge (used by admins/pengelola)."""
+    user.is_verified = verified
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
 async def authenticate_user(
     db: AsyncSession, username: str, password: str
 ) -> User | None:
