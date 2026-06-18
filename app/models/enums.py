@@ -14,3 +14,19 @@ class UserRole(str, Enum):
     CUSTOMER = "customer"
     PROVIDER = "provider"
     ADMIN = "admin"
+
+
+class ServiceCategory(str, Enum):
+    """Common informal-work categories in the city, used for browse/filter."""
+
+    LES_PRIVAT = "les_privat"
+    TUKANG_LAS = "tukang_las"
+    SERVIS_ELEKTRONIK = "servis_elektronik"
+    JAHIT = "jahit"
+    MASAK_KATERING = "masak_katering"
+    FOTOGRAFI = "fotografi"
+    DESAIN = "desain"
+    BANGUNAN = "bangunan"
+    KEBERSIHAN = "kebersihan"
+    PERAWATAN = "perawatan"
+    LAINNYA = "lainnya"

@@ -6,204 +6,341 @@
   <title>KOLEGA</title>
   <style>
     :root {
-      --bg: #fbfbfa;
-      --card: #ffffff;
-      --ink: #18181b;
-      --muted: #71717a;
-      --faint: #a1a1aa;
-      --line: #ececec;
-      --line-soft: #f3f3f3;
-      --accent: #4f46e5;
-      --accent-weak: #eef0fe;
-      --ok: #15803d;
-      --ok-bg: #f0fdf4;
-      --err: #dc2626;
-      --err-bg: #fef2f2;
+      --bg: #fbfbfa; --card: #fff; --ink: #18181b; --muted: #71717a; --faint: #a1a1aa;
+      --line: #ececec; --line-soft: #f3f3f3; --accent: #4f46e5; --accent-weak: #eef0fe;
+      --ok: #15803d; --ok-bg: #f0fdf4; --err: #dc2626;
     }
     * { box-sizing: border-box; }
-    html, body { height: 100%; }
     body {
-      margin: 0;
+      margin: 0; background: var(--bg); color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
       -webkit-font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
     }
-    .card {
-      width: 100%;
-      max-width: 400px;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      box-shadow: 0 1px 2px rgba(24,24,27,0.04), 0 12px 32px rgba(24,24,27,0.05);
-    }
-    /* Brand */
-    .brand { padding: 34px 34px 0; text-align: center; }
-    .brand .mark {
-      font-size: 16px; font-weight: 700; letter-spacing: 0.28em;
-      color: var(--ink); padding-left: 0.28em;
-    }
-    .brand .tag { color: var(--faint); font-size: 12.5px; margin-top: 8px; letter-spacing: 0.01em; }
+    button { font-family: inherit; cursor: pointer; }
+    .hidden { display: none !important; }
 
-    /* Tabs */
-    .tabs { display: flex; gap: 28px; margin: 28px 34px 0; border-bottom: 1px solid var(--line); }
-    .tabs button {
-      appearance: none; background: none; border: 0; padding: 0 0 12px;
-      font-size: 14px; font-weight: 500; color: var(--faint); cursor: pointer;
-      position: relative; transition: color 0.15s;
+    /* Top bar */
+    .topbar {
+      position: sticky; top: 0; z-index: 10; background: rgba(251,251,250,0.85);
+      backdrop-filter: saturate(180%) blur(8px);
+      border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; gap: 20px;
+      padding: 14px 22px;
     }
-    .tabs button:hover { color: var(--muted); }
+    .brand-sm { font-size: 15px; font-weight: 700; letter-spacing: 0.24em; padding-left: 0.24em; }
+    .nav { display: flex; gap: 6px; }
+    .navlink {
+      border: 0; background: none; padding: 7px 12px; border-radius: 8px;
+      font-size: 14px; color: var(--muted); font-weight: 500;
+    }
+    .navlink:hover { background: var(--line-soft); color: var(--ink); }
+    .navlink.active { background: var(--ink); color: #fff; }
+    .userbox { margin-left: auto; display: flex; align-items: center; gap: 12px; font-size: 13.5px; }
+    .userbox .uname { font-weight: 600; }
+    .userbox .role-chip { font-size: 11px; color: var(--accent); background: var(--accent-weak); padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+    .link-btn { border: 0; background: none; color: var(--muted); font-size: 13.5px; padding: 6px 8px; border-radius: 7px; }
+    .link-btn:hover { color: var(--err); }
+
+    main { max-width: 940px; margin: 0 auto; padding: 32px 22px 80px; }
+    .h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 4px; }
+    .lead { color: var(--muted); font-size: 14px; margin: 0 0 24px; }
+
+    /* Search */
+    .search { display: flex; gap: 10px; margin-bottom: 26px; flex-wrap: wrap; }
+    .search input, .search select {
+      padding: 11px 13px; font-size: 14px; border: 1px solid var(--line); border-radius: 9px;
+      background: #fff; color: var(--ink); outline: none;
+    }
+    .search input { flex: 1; min-width: 200px; }
+    .search input:focus, .search select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,0.12); }
+    .btn-dark { padding: 11px 18px; border: 0; border-radius: 9px; background: var(--ink); color: #fff; font-weight: 600; font-size: 14px; }
+    .btn-dark:hover { opacity: 0.88; }
+
+    /* Cards grid */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .pcard {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px;
+      transition: border-color 0.15s, box-shadow 0.15s; cursor: pointer;
+    }
+    .pcard:hover { border-color: #dcdce0; box-shadow: 0 6px 20px rgba(24,24,27,0.06); }
+    .pcard .top { display: flex; align-items: center; gap: 12px; }
+    .pcard .ava { width: 42px; height: 42px; border-radius: 50%; background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 17px; flex: none; }
+    .pcard .nm { font-weight: 600; font-size: 15px; }
+    .pcard .pf { color: var(--muted); font-size: 13px; }
+    .pcard .hl { color: var(--muted); font-size: 13px; margin-top: 12px; min-height: 18px; }
+    .pcard .meta { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-soft); }
+    .pcard .city { color: var(--faint); font-size: 12.5px; }
+    .badge { display: inline-block; padding: 2px 9px; border-radius: 7px; font-size: 11px; font-weight: 600; }
+    .badge.on { background: var(--ok-bg); color: var(--ok); }
+    .badge.off { background: #f4f4f5; color: var(--muted); }
+    .empty { color: var(--faint); text-align: center; padding: 48px 0; font-size: 14px; }
+
+    /* Detail + service list */
+    .panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 26px; }
+    .back { color: var(--muted); font-size: 13px; border: 0; background: none; padding: 0; margin-bottom: 18px; }
+    .back:hover { color: var(--ink); }
+    .svc { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin-top: 12px; }
+    .svc .st { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+    .svc .stitle { font-weight: 600; font-size: 14.5px; }
+    .svc .price { font-weight: 700; color: var(--accent); white-space: nowrap; }
+    .svc .unit { font-weight: 500; color: var(--faint); font-size: 12px; }
+    .svc .cat { font-size: 11px; color: var(--muted); background: var(--line-soft); padding: 2px 8px; border-radius: 6px; }
+    .svc .desc { color: var(--muted); font-size: 13px; margin-top: 8px; }
+
+    /* Auth card */
+    .center-wrap { display: flex; justify-content: center; }
+    .card.auth { width: 100%; max-width: 400px; background: var(--card); border: 1px solid var(--line);
+      border-radius: 16px; box-shadow: 0 1px 2px rgba(24,24,27,0.04), 0 12px 32px rgba(24,24,27,0.05); }
+    .brand { padding: 32px 32px 0; text-align: center; }
+    .brand .mark { font-size: 16px; font-weight: 700; letter-spacing: 0.28em; padding-left: 0.28em; }
+    .brand .tag { color: var(--faint); font-size: 12.5px; margin-top: 8px; }
+    .tabs { display: flex; gap: 28px; margin: 26px 32px 0; border-bottom: 1px solid var(--line); }
+    .tabs button { background: none; border: 0; padding: 0 0 12px; font-size: 14px; color: var(--faint); position: relative; }
     .tabs button.active { color: var(--ink); font-weight: 600; }
-    .tabs button.active::after {
-      content: ""; position: absolute; left: 0; right: 0; bottom: -1px;
-      height: 2px; background: var(--ink); border-radius: 2px;
-    }
+    .tabs button.active::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--ink); border-radius: 2px; }
 
-    /* Forms */
-    form { padding: 24px 34px 34px; }
-    label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
-      text-transform: uppercase; color: var(--muted); margin: 18px 0 7px; }
-    label:first-of-type { margin-top: 4px; }
-    input {
-      width: 100%; padding: 11px 13px; font-size: 14px; color: var(--ink);
-      background: #fff; border: 1px solid var(--line); border-radius: 9px;
-      outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+    form { padding: 22px 32px 32px; }
+    label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 16px 0 7px; }
+    form label:first-of-type, .field:first-child label { margin-top: 2px; }
+    input, select, textarea {
+      width: 100%; padding: 11px 13px; font-size: 14px; color: var(--ink); background: #fff;
+      border: 1px solid var(--line); border-radius: 9px; outline: none; font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-    input::placeholder { color: var(--faint); }
-    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,0.12); }
-
-    /* Role picker */
+    textarea { resize: vertical; min-height: 70px; }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,70,229,0.12); }
     .role-pick { display: flex; gap: 10px; }
-    .role-opt {
-      flex: 1; text-align: left; cursor: pointer;
-      padding: 12px 13px; border: 1px solid var(--line); border-radius: 11px;
-      background: #fff; transition: border-color 0.15s, background 0.15s;
-    }
-    .role-opt:hover { border-color: #dcdce0; }
+    .role-opt { flex: 1; text-align: left; padding: 12px 13px; border: 1px solid var(--line); border-radius: 11px; background: #fff; }
     .role-opt .role-title { display: block; font-size: 13.5px; font-weight: 600; color: var(--muted); }
     .role-opt .role-desc { display: block; font-size: 11.5px; color: var(--faint); margin-top: 2px; }
     .role-opt.active { border-color: var(--accent); background: var(--accent-weak); }
     .role-opt.active .role-title { color: var(--accent); }
-    .role-opt.active .role-desc { color: #6d68d6; }
-
-    /* Button */
-    .btn {
-      width: 100%; margin-top: 26px; padding: 12px; border: 0; border-radius: 9px;
-      background: var(--ink); color: #fff; font-size: 14.5px; font-weight: 600;
-      cursor: pointer; transition: opacity 0.15s, transform 0.05s;
-    }
+    .btn { width: 100%; margin-top: 24px; padding: 12px; border: 0; border-radius: 9px; background: var(--ink); color: #fff; font-size: 14.5px; font-weight: 600; }
     .btn:hover { opacity: 0.88; }
-    .btn:active { transform: translateY(1px); }
+    .msg { margin-top: 14px; font-size: 13px; text-align: center; min-height: 18px; }
+    .msg.ok { color: var(--ok); } .msg.err { color: var(--err); }
 
-    .msg { margin-top: 16px; font-size: 13px; text-align: center; min-height: 18px; }
-    .msg.ok { color: var(--ok); }
-    .msg.err { color: var(--err); }
-    .hidden { display: none; }
-
-    /* Profile */
-    .profile { padding: 32px 34px 34px; }
-    .avatar {
-      width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 16px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; font-weight: 600; color: #fff; background: var(--accent);
-    }
-    .profile h2 { text-align: center; margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
-    .profile .email { text-align: center; color: var(--muted); font-size: 13px; margin-top: 3px; }
-    .rows { margin-top: 24px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-    .row { display: flex; align-items: center; justify-content: space-between;
-      padding: 13px 16px; font-size: 14px; border-bottom: 1px solid var(--line-soft); }
-    .row:last-child { border-bottom: 0; }
-    .row .k { color: var(--muted); }
-    .row .v { color: var(--ink); font-weight: 500; }
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 7px; font-size: 12px; font-weight: 600; }
-    .badge.on { background: var(--ok-bg); color: var(--ok); }
-    .badge.off { background: #f4f4f5; color: var(--muted); }
-    .logout {
-      width: 100%; margin-top: 22px; padding: 11px; border: 1px solid var(--line);
-      background: #fff; color: var(--ink); border-radius: 9px; font-size: 14px;
-      font-weight: 500; cursor: pointer; transition: border-color 0.15s, color 0.15s;
-    }
-    .logout:hover { border-color: #f1c4c4; color: var(--err); }
+    /* Dashboard */
+    .dash-head { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+    .dash-head .ava { width: 52px; height: 52px; border-radius: 50%; background: var(--accent); color: #fff;
+      display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 20px; }
+    .dash-head h2 { margin: 0; font-size: 18px; font-weight: 600; }
+    .dash-head .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 28px 0 12px; }
+    .row2 { display: flex; gap: 12px; }
+    .row2 > .field { flex: 1; }
+    .field { margin-bottom: 2px; }
+    .svc-row { display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      border: 1px solid var(--line); border-radius: 11px; padding: 13px 15px; margin-top: 10px; }
+    .svc-row .info .t { font-weight: 600; font-size: 14px; }
+    .svc-row .info .s { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+    .del { border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 8px; padding: 6px 11px; font-size: 12.5px; }
+    .del:hover { border-color: #f1c4c4; color: var(--err); }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="brand">
-      <div class="mark">KOLEGA</div>
-      <div class="tag">Kolaborasi Layanan Ekonomi &amp; Geliat Warga</div>
-    </div>
+  <header class="topbar">
+    <div class="brand-sm">KOLEGA</div>
+    <nav class="nav">
+      <button class="navlink active" data-nav="browse" onclick="navTo('browse')">Cari Jasa</button>
+      <button class="navlink" data-nav="account" onclick="navTo('account')">Akun</button>
+    </nav>
+    <div class="userbox" id="userbox"></div>
+  </header>
 
-    <!-- Auth view -->
-    <div id="auth-view">
-      <div class="tabs">
-        <button id="tab-login" class="active" onclick="switchTab('login')">Masuk</button>
-        <button id="tab-register" onclick="switchTab('register')">Daftar</button>
-      </div>
-
-      <form id="login-form" onsubmit="return doLogin(event)">
-        <label for="login-username">Username</label>
-        <input id="login-username" placeholder="budi_las" autocomplete="username" required />
-        <label for="login-password">Password</label>
-        <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" required />
-        <button class="btn" type="submit">Masuk</button>
-        <div id="login-msg" class="msg"></div>
-      </form>
-
-      <form id="register-form" class="hidden" onsubmit="return doRegister(event)">
-        <label>Daftar sebagai</label>
-        <div class="role-pick">
-          <button type="button" class="role-opt active" data-role="customer" onclick="pickRole(this)">
-            <span class="role-title">Warga</span>
-            <span class="role-desc">Cari jasa</span>
-          </button>
-          <button type="button" class="role-opt" data-role="provider" onclick="pickRole(this)">
-            <span class="role-title">Penyedia</span>
-            <span class="role-desc">Tawarkan jasa</span>
-          </button>
+  <main>
+    <!-- BROWSE -->
+    <section id="view-browse" class="view">
+      <div id="browse-home">
+        <h1 class="h1">Cari jasa di kotamu</h1>
+        <p class="lead">Temukan penyedia jasa tepercaya di Padang Panjang — dari tukang las sampai guru les.</p>
+        <div class="search">
+          <input id="search-q" placeholder="Cari nama atau keahlian…" onkeydown="if(event.key==='Enter')loadBrowse()" />
+          <select id="search-cat"></select>
+          <button class="btn-dark" onclick="loadBrowse()">Cari</button>
         </div>
-        <label for="reg-username">Username</label>
-        <input id="reg-username" placeholder="budi_las" minlength="3" maxlength="50" required />
-        <label for="reg-email">Email</label>
-        <input id="reg-email" type="email" placeholder="budi@email.com" required />
-        <label for="reg-password">Password</label>
-        <input id="reg-password" type="password" placeholder="Minimal 8 karakter" minlength="8" required />
-        <button class="btn" type="submit">Buat akun</button>
-        <div id="register-msg" class="msg"></div>
-      </form>
-    </div>
-
-    <!-- Profile view -->
-    <div id="profile-view" class="profile hidden">
-      <div class="avatar" id="p-avatar">?</div>
-      <h2 id="p-username">—</h2>
-      <div class="email" id="p-email">—</div>
-      <div class="rows">
-        <div class="row"><span class="k">ID</span><span class="v" id="p-id">—</span></div>
-        <div class="row"><span class="k">Peran</span><span id="p-role"></span></div>
-        <div class="row"><span class="k">Verifikasi</span><span id="p-verified"></span></div>
-        <div class="row"><span class="k">Status</span><span id="p-active"></span></div>
-        <div class="row"><span class="k">Bergabung</span><span class="v" id="p-created">—</span></div>
+        <div id="browse-list" class="grid"></div>
       </div>
-      <button class="logout" onclick="logout()">Keluar</button>
-    </div>
-  </div>
+      <div id="browse-detail" class="hidden"></div>
+    </section>
+
+    <!-- ACCOUNT -->
+    <section id="view-account" class="view hidden">
+      <div id="auth-card" class="center-wrap">
+        <div class="card auth">
+          <div class="brand">
+            <div class="mark">KOLEGA</div>
+            <div class="tag">Kolaborasi Layanan Ekonomi &amp; Geliat Warga</div>
+          </div>
+          <div class="tabs">
+            <button id="tab-login" class="active" onclick="switchTab('login')">Masuk</button>
+            <button id="tab-register" onclick="switchTab('register')">Daftar</button>
+          </div>
+          <form id="login-form" onsubmit="return doLogin(event)">
+            <label for="login-username">Username</label>
+            <input id="login-username" placeholder="budi_las" autocomplete="username" required />
+            <label for="login-password">Password</label>
+            <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+            <button class="btn" type="submit">Masuk</button>
+            <div id="login-msg" class="msg"></div>
+          </form>
+          <form id="register-form" class="hidden" onsubmit="return doRegister(event)">
+            <label>Daftar sebagai</label>
+            <div class="role-pick">
+              <button type="button" class="role-opt active" data-role="customer" onclick="pickRole(this)">
+                <span class="role-title">Warga</span><span class="role-desc">Cari jasa</span>
+              </button>
+              <button type="button" class="role-opt" data-role="provider" onclick="pickRole(this)">
+                <span class="role-title">Penyedia</span><span class="role-desc">Tawarkan jasa</span>
+              </button>
+            </div>
+            <label for="reg-username">Username</label>
+            <input id="reg-username" placeholder="budi_las" minlength="3" maxlength="50" required />
+            <label for="reg-email">Email</label>
+            <input id="reg-email" type="email" placeholder="budi@email.com" required />
+            <label for="reg-password">Password</label>
+            <input id="reg-password" type="password" placeholder="Minimal 8 karakter" minlength="8" required />
+            <button class="btn" type="submit">Buat akun</button>
+            <div id="register-msg" class="msg"></div>
+          </form>
+        </div>
+      </div>
+      <div id="dashboard" class="hidden"></div>
+    </section>
+  </main>
 
   <script>
-    const API = "/api/v1/auth";
+    const API = "/api/v1";
     const TOKEN_KEY = "kolega_token";
     const ROLE_LABELS = { customer: "Warga", provider: "Penyedia", admin: "Pengelola" };
+    const CATS = [
+      ["les_privat", "Les Privat"], ["tukang_las", "Tukang Las"], ["servis_elektronik", "Servis Elektronik"],
+      ["jahit", "Jahit & Permak"], ["masak_katering", "Masak & Katering"], ["fotografi", "Fotografi"],
+      ["desain", "Desain"], ["bangunan", "Tukang Bangunan"], ["kebersihan", "Kebersihan & ART"],
+      ["perawatan", "Perawatan Lansia"], ["lainnya", "Lainnya"],
+    ];
+    const CAT_LABEL = Object.fromEntries(CATS);
+    let currentUser = null;
 
-    let selectedRole = "customer";
-    function pickRole(btn) {
-      selectedRole = btn.dataset.role;
-      document.querySelectorAll(".role-opt").forEach((b) => b.classList.toggle("active", b === btn));
+    // --- helpers ---
+    const token = () => localStorage.getItem(TOKEN_KEY);
+    const authH = () => (token() ? { Authorization: `Bearer ${token()}` } : {});
+    const esc = (s) => (s == null ? "" : String(s).replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])));
+    const rp = (n) => "Rp " + Number(n).toLocaleString("id-ID");
+    const initial = (s) => (s ? s[0].toUpperCase() : "?");
+
+    async function api(path, opts = {}) {
+      const res = await fetch(API + path, {
+        ...opts,
+        headers: { "Content-Type": "application/json", ...authH(), ...(opts.headers || {}) },
+      });
+      let data = null;
+      try { data = await res.json(); } catch (_) {}
+      return { ok: res.ok, status: res.status, data };
+    }
+    function errText(data) {
+      if (!data || !data.detail) return null;
+      if (typeof data.detail === "string") return data.detail;
+      if (Array.isArray(data.detail)) return data.detail[0]?.msg || null;
+      return null;
+    }
+    function setMsg(id, text, ok) {
+      const el = document.getElementById(id);
+      el.textContent = text; el.className = "msg " + (ok ? "ok" : "err");
     }
 
+    // --- navigation ---
+    function navTo(view) {
+      document.querySelectorAll(".navlink").forEach((b) => b.classList.toggle("active", b.dataset.nav === view));
+      document.getElementById("view-browse").classList.toggle("hidden", view !== "browse");
+      document.getElementById("view-account").classList.toggle("hidden", view !== "account");
+      if (view === "browse") { showBrowseHome(); loadBrowse(); }
+      if (view === "account") renderAccount();
+    }
+
+    function refreshUserbox() {
+      const box = document.getElementById("userbox");
+      if (currentUser) {
+        box.innerHTML = `<span class="uname">${esc(currentUser.username)}</span>
+          <span class="role-chip">${ROLE_LABELS[currentUser.role] || currentUser.role}</span>
+          <button class="link-btn" onclick="logout()">Keluar</button>`;
+      } else {
+        box.innerHTML = `<button class="link-btn" onclick="navTo('account')">Masuk</button>`;
+      }
+    }
+
+    // --- browse ---
+    function showBrowseHome() {
+      document.getElementById("browse-home").classList.remove("hidden");
+      document.getElementById("browse-detail").classList.add("hidden");
+    }
+    async function loadBrowse() {
+      const q = document.getElementById("search-q").value.trim();
+      const cat = document.getElementById("search-cat").value;
+      const params = new URLSearchParams();
+      if (q) params.set("q", q);
+      if (cat) params.set("category", cat);
+      const { data } = await api(`/providers?${params.toString()}`);
+      const list = document.getElementById("browse-list");
+      if (!data || data.length === 0) {
+        list.innerHTML = `<div class="empty" style="grid-column:1/-1">Belum ada penyedia yang cocok.</div>`;
+        return;
+      }
+      list.innerHTML = data.map(providerCard).join("");
+    }
+    function providerCard(p) {
+      const badge = p.is_verified
+        ? '<span class="badge on">Terverifikasi</span>' : '<span class="badge off">Baru</span>';
+      return `<div class="pcard" onclick="openProvider(${p.id})">
+        <div class="top">
+          <div class="ava">${initial(p.display_name)}</div>
+          <div><div class="nm">${esc(p.display_name)}</div><div class="pf">${esc(p.profession)}</div></div>
+        </div>
+        <div class="hl">${esc(p.headline || "")}</div>
+        <div class="meta"><span class="city">${esc(p.city || "")}</span>${badge}</div>
+      </div>`;
+    }
+    async function openProvider(id) {
+      const { data: p, ok } = await api(`/providers/${id}`);
+      if (!ok) return;
+      const badge = p.is_verified
+        ? '<span class="badge on">Terverifikasi</span>' : '<span class="badge off">Baru</span>';
+      const services = (p.services || []).filter((s) => s.is_active);
+      const svcHtml = services.length
+        ? services.map((s) => `<div class="svc">
+            <div class="st"><span class="stitle">${esc(s.title)}</span>
+              <span class="price">${rp(s.price)} <span class="unit">${esc(s.price_unit)}</span></span></div>
+            <div style="margin-top:8px"><span class="cat">${esc(CAT_LABEL[s.category] || s.category)}</span></div>
+            ${s.description ? `<div class="desc">${esc(s.description)}</div>` : ""}
+          </div>`).join("")
+        : `<div class="empty">Penyedia ini belum menambahkan layanan.</div>`;
+      document.getElementById("browse-home").classList.add("hidden");
+      const d = document.getElementById("browse-detail");
+      d.classList.remove("hidden");
+      d.innerHTML = `<div class="panel">
+        <button class="back" onclick="showBrowseHome()">← Kembali</button>
+        <div class="dash-head">
+          <div class="ava">${initial(p.display_name)}</div>
+          <div><h2>${esc(p.display_name)} ${badge}</h2>
+          <div class="sub">${esc(p.profession)}${p.area ? " · " + esc(p.area) : ""} · ${esc(p.city || "")}</div></div>
+        </div>
+        ${p.headline ? `<p class="lead">${esc(p.headline)}</p>` : ""}
+        ${p.bio ? `<p style="font-size:14px;color:#3f3f46;line-height:1.6">${esc(p.bio)}</p>` : ""}
+        ${p.phone ? `<p style="font-size:13px;color:var(--muted)">Kontak: ${esc(p.phone)}</p>` : ""}
+        <div class="section-title">Layanan</div>
+        ${svcHtml}
+      </div>`;
+    }
+
+    // --- account / auth ---
+    function renderAccount() {
+      if (currentUser) { showDashboard(); } else {
+        document.getElementById("auth-card").classList.remove("hidden");
+        document.getElementById("dashboard").classList.add("hidden");
+      }
+    }
     function switchTab(which) {
       const login = which === "login";
       document.getElementById("tab-login").classList.toggle("active", login);
@@ -211,13 +348,11 @@
       document.getElementById("login-form").classList.toggle("hidden", !login);
       document.getElementById("register-form").classList.toggle("hidden", login);
     }
-
-    function setMsg(id, text, ok) {
-      const el = document.getElementById(id);
-      el.textContent = text;
-      el.className = "msg " + (ok ? "ok" : "err");
+    let selectedRole = "customer";
+    function pickRole(btn) {
+      selectedRole = btn.dataset.role;
+      document.querySelectorAll(".role-opt").forEach((b) => b.classList.toggle("active", b === btn));
     }
-
     async function doRegister(e) {
       e.preventDefault();
       const body = {
@@ -226,83 +361,165 @@
         password: document.getElementById("reg-password").value,
         role: selectedRole,
       };
-      const res = await fetch(`${API}/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        setMsg("register-msg", "Akun dibuat! Silakan masuk.", true);
-        setTimeout(() => switchTab("login"), 900);
-      } else {
-        setMsg("register-msg", errText(data) || "Gagal mendaftar", false);
-      }
+      const { ok, data } = await api("/auth/register", { method: "POST", body: JSON.stringify(body) });
+      if (ok) { setMsg("register-msg", "Akun dibuat! Silakan masuk.", true); setTimeout(() => switchTab("login"), 900); }
+      else setMsg("register-msg", errText(data) || "Gagal mendaftar", false);
       return false;
     }
-
     async function doLogin(e) {
       e.preventDefault();
       const form = new URLSearchParams();
       form.set("username", document.getElementById("login-username").value.trim());
       form.set("password", document.getElementById("login-password").value);
-      const res = await fetch(`${API}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: form,
+      const res = await fetch(`${API}/auth/login`, {
+        method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: form,
       });
       const data = await res.json().catch(() => ({}));
-      if (res.ok) {
-        localStorage.setItem(TOKEN_KEY, data.access_token);
-        await loadProfile();
-      } else {
-        setMsg("login-msg", errText(data) || "Login gagal", false);
-      }
+      if (res.ok) { localStorage.setItem(TOKEN_KEY, data.access_token); await fetchMe(); navTo("account"); }
+      else setMsg("login-msg", errText(data) || "Login gagal", false);
       return false;
     }
+    async function fetchMe() {
+      if (!token()) { currentUser = null; refreshUserbox(); return; }
+      const { ok, data } = await api("/auth/me");
+      currentUser = ok ? data : null;
+      if (!ok) localStorage.removeItem(TOKEN_KEY);
+      refreshUserbox();
+    }
+    function logout() { localStorage.removeItem(TOKEN_KEY); currentUser = null; refreshUserbox(); navTo("browse"); }
 
-    async function loadProfile() {
-      const token = localStorage.getItem(TOKEN_KEY);
-      if (!token) return showAuth();
-      const res = await fetch(`${API}/me`, {
-        headers: { Authorization: `Bearer ${token}` },
+    // --- dashboard ---
+    async function showDashboard() {
+      document.getElementById("auth-card").classList.add("hidden");
+      const dash = document.getElementById("dashboard");
+      dash.classList.remove("hidden");
+      if (currentUser.role === "provider") return renderProviderDashboard(dash);
+      renderCustomerDashboard(dash);
+    }
+    function renderCustomerDashboard(dash) {
+      const u = currentUser;
+      dash.innerHTML = `<div class="center-wrap"><div class="card auth" style="max-width:420px">
+        <div class="brand"><div class="mark">KOLEGA</div></div>
+        <div style="padding:24px 32px 32px">
+          <div class="dash-head">
+            <div class="ava">${initial(u.username)}</div>
+            <div><h2>${esc(u.username)}</h2><div class="sub">Warga · ${esc(u.email)}</div></div>
+          </div>
+          <p class="lead">Kamu masuk sebagai <b>Warga</b>. Mulai cari jasa yang kamu butuhkan.</p>
+          <button class="btn" onclick="navTo('browse')">Cari Jasa</button>
+        </div></div></div>`;
+    }
+    async function renderProviderDashboard(dash) {
+      const { ok, status, data: profile } = await api("/providers/me");
+      if (status === 404) return renderProfileForm(dash, null);
+      if (!ok) { dash.innerHTML = `<div class="empty">Gagal memuat profil.</div>`; return; }
+      const services = profile.services || [];
+      const verBadge = profile.is_verified
+        ? '<span class="badge on">Terverifikasi</span>' : '<span class="badge off">Menunggu verifikasi</span>';
+      dash.innerHTML = `<div class="panel">
+        <div class="dash-head">
+          <div class="ava">${initial(profile.display_name)}</div>
+          <div><h2>${esc(profile.display_name)} ${verBadge}</h2>
+          <div class="sub">${esc(profile.profession)} · ${esc(profile.city || "")}</div></div>
+          <button class="link-btn" style="margin-left:auto" onclick="renderProfileForm(document.getElementById('dashboard'), CURRENT_PROFILE)">Edit profil</button>
+        </div>
+        ${profile.headline ? `<p class="lead">${esc(profile.headline)}</p>` : ""}
+        <div class="section-title">Layanan saya (${services.length})</div>
+        <div id="svc-list">${services.map(svcRow).join("") || '<div class="empty">Belum ada layanan.</div>'}</div>
+        <div class="section-title">Tambah layanan</div>
+        ${serviceForm()}
+      </div>`;
+      window.CURRENT_PROFILE = profile;
+    }
+    function svcRow(s) {
+      return `<div class="svc-row">
+        <div class="info"><div class="t">${esc(s.title)}</div>
+          <div class="s">${esc(CAT_LABEL[s.category] || s.category)} · ${rp(s.price)} ${esc(s.price_unit)}</div></div>
+        <button class="del" onclick="deleteService(${s.id})">Hapus</button>
+      </div>`;
+    }
+    function serviceForm() {
+      const opts = CATS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
+      return `<form onsubmit="return addService(event)">
+        <div class="field"><label>Judul layanan</label><input id="svc-title" placeholder="mis. Pembuatan pagar besi" required minlength="3" /></div>
+        <div class="row2">
+          <div class="field"><label>Kategori</label><select id="svc-cat">${opts}</select></div>
+          <div class="field"><label>Harga (Rp)</label><input id="svc-price" type="number" min="0" placeholder="350000" required /></div>
+          <div class="field"><label>Satuan</label><input id="svc-unit" placeholder="per pekerjaan" /></div>
+        </div>
+        <div class="field"><label>Deskripsi (opsional)</label><textarea id="svc-desc" placeholder="Detail layanan…"></textarea></div>
+        <button class="btn" type="submit">Tambah layanan</button>
+        <div id="svc-msg" class="msg"></div>
+      </form>`;
+    }
+    function renderProfileForm(dash, existing) {
+      const p = existing || {};
+      dash.innerHTML = `<div class="panel" style="max-width:560px;margin:0 auto">
+        <h2 style="margin:0 0 4px;font-size:18px">${existing ? "Edit profil penyedia" : "Lengkapi profil penyedia"}</h2>
+        <p class="lead">Tampilkan keahlianmu agar warga bisa menemukanmu.</p>
+        <form onsubmit="return saveProfile(event, ${existing ? "true" : "false"})">
+          <div class="row2">
+            <div class="field"><label>Nama tampil</label><input id="pf-name" value="${esc(p.display_name || "")}" required minlength="2" /></div>
+            <div class="field"><label>Keahlian utama</label><input id="pf-prof" value="${esc(p.profession || "")}" placeholder="Tukang Las" required minlength="2" /></div>
+          </div>
+          <div class="field"><label>Headline (opsional)</label><input id="pf-headline" value="${esc(p.headline || "")}" placeholder="Las pagar, teralis, kanopi" /></div>
+          <div class="row2">
+            <div class="field"><label>No. HP (opsional)</label><input id="pf-phone" value="${esc(p.phone || "")}" /></div>
+            <div class="field"><label>Area layanan (opsional)</label><input id="pf-area" value="${esc(p.area || "")}" placeholder="Kel. Silaing Bawah" /></div>
+          </div>
+          <div class="field"><label>Tentang (opsional)</label><textarea id="pf-bio" placeholder="Ceritakan pengalamanmu…">${esc(p.bio || "")}</textarea></div>
+          <button class="btn" type="submit">${existing ? "Simpan perubahan" : "Buat profil"}</button>
+          <div id="pf-msg" class="msg"></div>
+        </form>
+      </div>`;
+    }
+    async function saveProfile(e, isEdit) {
+      e.preventDefault();
+      const body = {
+        display_name: document.getElementById("pf-name").value.trim(),
+        profession: document.getElementById("pf-prof").value.trim(),
+        headline: document.getElementById("pf-headline").value.trim() || null,
+        phone: document.getElementById("pf-phone").value.trim() || null,
+        area: document.getElementById("pf-area").value.trim() || null,
+        bio: document.getElementById("pf-bio").value.trim() || null,
+      };
+      const { ok, data } = await api("/providers/me", {
+        method: isEdit ? "PATCH" : "POST", body: JSON.stringify(body),
       });
-      if (!res.ok) { localStorage.removeItem(TOKEN_KEY); return showAuth(); }
-      const u = await res.json();
-      document.getElementById("p-avatar").textContent = (u.username[0] || "?").toUpperCase();
-      document.getElementById("p-username").textContent = u.username;
-      document.getElementById("p-email").textContent = u.email;
-      document.getElementById("p-id").textContent = "#" + u.id;
-      document.getElementById("p-role").innerHTML =
-        `<span class="badge ${u.role === "admin" ? "on" : "off"}">${ROLE_LABELS[u.role] || u.role}</span>`;
-      document.getElementById("p-verified").innerHTML = u.is_verified
-        ? '<span class="badge on">Terverifikasi</span>' : '<span class="badge off">Belum</span>';
-      document.getElementById("p-active").innerHTML = u.is_active
-        ? '<span class="badge on">Aktif</span>' : '<span class="badge off">Nonaktif</span>';
-      document.getElementById("p-created").textContent =
-        new Date(u.created_at).toLocaleDateString("id-ID", { year: "numeric", month: "short", day: "numeric" });
-      document.getElementById("auth-view").classList.add("hidden");
-      document.getElementById("profile-view").classList.remove("hidden");
+      if (ok) showDashboard();
+      else setMsg("pf-msg", errText(data) || "Gagal menyimpan", false);
+      return false;
+    }
+    async function addService(e) {
+      e.preventDefault();
+      const body = {
+        title: document.getElementById("svc-title").value.trim(),
+        category: document.getElementById("svc-cat").value,
+        price: Number(document.getElementById("svc-price").value),
+        price_unit: document.getElementById("svc-unit").value.trim() || "per pekerjaan",
+        description: document.getElementById("svc-desc").value.trim() || null,
+      };
+      const { ok, data } = await api("/providers/me/services", { method: "POST", body: JSON.stringify(body) });
+      if (ok) showDashboard();
+      else setMsg("svc-msg", errText(data) || "Gagal menambah layanan", false);
+      return false;
+    }
+    async function deleteService(id) {
+      await api(`/providers/me/services/${id}`, { method: "DELETE" });
+      showDashboard();
     }
 
-    function showAuth() {
-      document.getElementById("profile-view").classList.add("hidden");
-      document.getElementById("auth-view").classList.remove("hidden");
+    // --- init ---
+    function initCategories() {
+      const sel = document.getElementById("search-cat");
+      sel.innerHTML = `<option value="">Semua kategori</option>` +
+        CATS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
     }
-
-    function logout() {
-      localStorage.removeItem(TOKEN_KEY);
-      showAuth();
-    }
-
-    function errText(data) {
-      if (!data || !data.detail) return null;
-      if (typeof data.detail === "string") return data.detail;
-      if (Array.isArray(data.detail)) return data.detail[0]?.msg || null;
-      return null;
-    }
-
-    if (localStorage.getItem(TOKEN_KEY)) loadProfile();
+    (async function init() {
+      initCategories();
+      await fetchMe();
+      navTo("browse");
+    })();
   </script>
 </body>
 </html>

@@ -9,6 +9,7 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import decode_access_token
 from app.crud import user as user_crud
+from app.models.enums import UserRole
 from app.models.user import User
 
 oauth2_scheme = OAuth2PasswordBearer(
@@ -46,5 +47,17 @@ async def get_current_active_user(
     if not current_user.is_active:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
+        )
+    return current_user
+
+
+async def get_current_provider(
+    current_user: User = Depends(get_current_active_user),
+) -> User:
+    """Ensure the current user is a provider (penyedia)."""
+    if current_user.role != UserRole.PROVIDER.value:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Hanya penyedia yang dapat mengakses fitur ini",
         )
     return current_user
