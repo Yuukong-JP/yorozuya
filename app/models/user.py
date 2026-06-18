@@ -6,6 +6,7 @@ from sqlalchemy import Boolean, DateTime, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.models.enums import UserRole
 
 
 class User(Base):
@@ -19,6 +20,16 @@ class User(Base):
         String(50), unique=True, index=True, nullable=False
     )
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
+    role: Mapped[str] = mapped_column(
+        String(20),
+        default=UserRole.CUSTOMER.value,
+        server_default=UserRole.CUSTOMER.value,
+        nullable=False,
+        index=True,
+    )
+    is_verified: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_superuser: Mapped[bool] = mapped_column(
         Boolean, default=False, nullable=False

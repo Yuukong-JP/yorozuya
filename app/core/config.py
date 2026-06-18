@@ -15,16 +15,16 @@ class Settings(BaseSettings):
     )
 
     # Application
-    PROJECT_NAME: str = "Yorozuya"
+    PROJECT_NAME: str = "KOLEGA"
     ENVIRONMENT: str = "development"
     API_V1_PREFIX: str = "/api/v1"
 
     # Database
-    POSTGRES_USER: str = "yorozuya"
-    POSTGRES_PASSWORD: str = "yorozuya"
+    POSTGRES_USER: str = "kolega"
+    POSTGRES_PASSWORD: str = "kolega"
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: int = 5432
-    POSTGRES_DB: str = "yorozuya"
+    POSTGRES_DB: str = "kolega"
 
     # Security
     SECRET_KEY: str = "change-me-to-a-random-secret-key"

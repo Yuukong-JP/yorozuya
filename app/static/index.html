@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Yorozuya</title>
+  <title>KOLEGA</title>
   <style>
     :root {
       --bg: #0f1117;
@@ -136,13 +136,21 @@
       color: var(--text); border-radius: 10px; cursor: pointer; font-weight: 600;
     }
     .logout:hover { border-color: var(--err); color: var(--err); }
+    /* Role picker */
+    .role-pick { display: flex; gap: 8px; margin-top: 4px; }
+    .role-opt {
+      flex: 1; padding: 11px 8px; border: 1px solid var(--border);
+      background: var(--panel-2); color: var(--muted); border-radius: 10px;
+      cursor: pointer; font-size: 13px; font-weight: 600; line-height: 1.3;
+    }
+    .role-opt.active { border-color: var(--accent); color: var(--text); background: rgba(110,168,254,0.12); }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="brand">
-      <div class="logo">万事屋 Yorozuya</div>
-      <div class="tag">We do anything — masuk untuk mulai</div>
+      <div class="logo">KOLEGA</div>
+      <div class="tag">Kolaborasi Layanan Ekonomi &amp; Geliat Warga</div>
     </div>
 
     <!-- Auth view -->
@@ -162,6 +170,11 @@
       </form>
 
       <form id="register-form" class="hidden" onsubmit="return doRegister(event)">
+        <label>Daftar sebagai</label>
+        <div class="role-pick">
+          <button type="button" class="role-opt active" data-role="customer" onclick="pickRole(this)">Warga<br><small>cari jasa</small></button>
+          <button type="button" class="role-opt" data-role="provider" onclick="pickRole(this)">Penyedia<br><small>tawarkan jasa</small></button>
+        </div>
         <label for="reg-username">Username</label>
         <input id="reg-username" minlength="3" maxlength="50" required />
         <label for="reg-email">Email</label>
@@ -180,8 +193,9 @@
       <div class="email" id="p-email">—</div>
       <div class="rows">
         <div class="row"><span class="k">ID</span><span id="p-id">—</span></div>
+        <div class="row"><span class="k">Peran</span><span id="p-role"></span></div>
+        <div class="row"><span class="k">Verifikasi</span><span id="p-verified"></span></div>
         <div class="row"><span class="k">Status</span><span id="p-active"></span></div>
-        <div class="row"><span class="k">Role</span><span id="p-role"></span></div>
         <div class="row"><span class="k">Bergabung</span><span id="p-created">—</span></div>
       </div>
       <button class="logout" onclick="logout()">Keluar</button>
@@ -190,7 +204,14 @@
 
   <script>
     const API = "/api/v1/auth";
-    const TOKEN_KEY = "yorozuya_token";
+    const TOKEN_KEY = "kolega_token";
+    const ROLE_LABELS = { customer: "Warga", provider: "Penyedia", admin: "Pengelola" };
+
+    let selectedRole = "customer";
+    function pickRole(btn) {
+      selectedRole = btn.dataset.role;
+      document.querySelectorAll(".role-opt").forEach((b) => b.classList.toggle("active", b === btn));
+    }
 
     function switchTab(which) {
       const login = which === "login";
@@ -212,6 +233,7 @@
         username: document.getElementById("reg-username").value.trim(),
         email: document.getElementById("reg-email").value.trim(),
         password: document.getElementById("reg-password").value,
+        role: selectedRole,
       };
       const res = await fetch(`${API}/register`, {
         method: "POST",
@@ -260,10 +282,12 @@
       document.getElementById("p-username").textContent = u.username;
       document.getElementById("p-email").textContent = u.email;
       document.getElementById("p-id").textContent = "#" + u.id;
+      document.getElementById("p-role").innerHTML =
+        `<span class="badge ${u.role === "admin" ? "on" : "off"}">${ROLE_LABELS[u.role] || u.role}</span>`;
+      document.getElementById("p-verified").innerHTML = u.is_verified
+        ? '<span class="badge on">Terverifikasi</span>' : '<span class="badge off">Belum</span>';
       document.getElementById("p-active").innerHTML = u.is_active
         ? '<span class="badge on">Aktif</span>' : '<span class="badge off">Nonaktif</span>';
-      document.getElementById("p-role").innerHTML = u.is_superuser
-        ? '<span class="badge on">Admin</span>' : '<span class="badge off">User</span>';
       document.getElementById("p-created").textContent =
         new Date(u.created_at).toLocaleDateString("id-ID", { year: "numeric", month: "short", day: "numeric" });
       document.getElementById("auth-view").classList.add("hidden");

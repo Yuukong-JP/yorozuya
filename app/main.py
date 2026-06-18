@@ -1,4 +1,4 @@
-"""Yorozuya FastAPI application entrypoint."""
+"""KOLEGA FastAPI application entrypoint."""
 
 from pathlib import Path
 
@@ -13,7 +13,11 @@ STATIC_DIR = Path(__file__).parent / "static"
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version="0.1.0",
-    description="Yorozuya — a do-anything service backend (FastAPI + PostgreSQL).",
+    description=(
+        "KOLEGA (Kolaborasi Layanan Ekonomi & Geliat Warga) — a hyperlocal "
+        "platform connecting informal workers with residents who need their "
+        "services. Built with FastAPI + PostgreSQL."
+    ),
     openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
     docs_url="/docs",
     redoc_url="/redoc",

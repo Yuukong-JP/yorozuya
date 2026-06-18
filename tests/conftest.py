@@ -58,7 +58,7 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
 @pytest.fixture
 def user_payload() -> dict[str, str]:
     return {
-        "email": "gintoki@yorozuya.jp",
-        "username": "gintoki",
-        "password": "sweettooth123",
+        "email": "budi@kolega.id",
+        "username": "budi_las",
+        "password": "lasterbaik123",
     }

@@ -24,10 +24,28 @@ async def test_register_returns_created_user(client, user_payload):
     assert body["username"] == user_payload["username"]
     assert body["is_active"] is True
     assert body["is_superuser"] is False
+    # Self-registration defaults to a (customer) resident, not yet verified.
+    assert body["role"] == "customer"
+    assert body["is_verified"] is False
     assert "id" in body
     # The password must never be exposed.
     assert "password" not in body
     assert "hashed_password" not in body
+
+
+async def test_register_as_provider(client, user_payload):
+    payload = dict(user_payload, role="provider")
+    resp = await register(client, payload)
+    assert resp.status_code == 201
+    assert resp.json()["role"] == "provider"
+    assert resp.json()["is_verified"] is False
+
+
+async def test_register_as_admin_is_rejected(client, user_payload):
+    # Admin accounts must not be creatable through the public API.
+    payload = dict(user_payload, role="admin")
+    resp = await register(client, payload)
+    assert resp.status_code == 422
 
 
 async def test_register_duplicate_email_conflicts(client, user_payload):
@@ -39,7 +57,7 @@ async def test_register_duplicate_email_conflicts(client, user_payload):
 
 async def test_register_duplicate_username_conflicts(client, user_payload):
     await register(client, user_payload)
-    dup = dict(user_payload, email="other@yorozuya.jp")
+    dup = dict(user_payload, email="other@kolega.id")
     resp = await register(client, dup)
     assert resp.status_code == 409
 
@@ -48,8 +66,8 @@ async def test_register_duplicate_username_conflicts(client, user_payload):
     "payload",
     [
         {"email": "not-an-email", "username": "kagura", "password": "longenough1"},
-        {"email": "kagura@yorozuya.jp", "username": "ka", "password": "longenough1"},
-        {"email": "kagura@yorozuya.jp", "username": "kagura", "password": "short"},
+        {"email": "siti@kolega.id", "username": "si", "password": "longenough1"},
+        {"email": "siti@kolega.id", "username": "siti_jahit", "password": "short"},
     ],
 )
 async def test_register_validation_errors(client, payload):

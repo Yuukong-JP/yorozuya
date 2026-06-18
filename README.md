@@ -1,8 +1,27 @@
-# Yorozuya
+# KOLEGA
 
-A "do-anything" service backend — the foundation layer built on **FastAPI** and
-**PostgreSQL**. This stage ships project scaffolding, the `users` database table,
-and user **registration / login** with JWT authentication.
+**Kolaborasi Layanan Ekonomi & Geliat Warga** — a hyperlocal public-service
+platform that registers informal workers (*pekerja informal*) and connects them
+with residents who need their services. Submitted as a regional innovation
+(*inovasi daerah*) proposal for Kota Padang Panjang.
+
+This repository is the backend foundation: project scaffolding, the `users`
+table with role-based actors, and user **registration / login** with JWT
+authentication. It maps directly to the proposal's first mandatory feature,
+*"Daftar & masuk akun"*.
+
+> Note: an earlier draft used the working codename **Yorozuya**. The project is
+> now **KOLEGA**.
+
+## Actors
+
+KOLEGA serves three groups that depend on one another:
+
+| Role (`role`) | Indonesian | Description |
+| ------------- | ---------- | ----------- |
+| `customer`    | Warga pemesan | Residents who order services. Default on sign-up. |
+| `provider`    | Penyedia | Informal workers who offer services. Verified before going live. |
+| `admin`       | Pengelola | City staff who verify, moderate, and oversee. Provisioned internally. |
 
 ## Stack
 
@@ -21,23 +40,26 @@ and user **registration / login** with JWT authentication.
 
 ```
 app/
-├── main.py              # FastAPI app + health routes
+├── main.py              # FastAPI app, health route, static frontend mount
 ├── core/
 │   ├── config.py        # Settings from environment / .env
 │   ├── database.py      # Async engine, session, declarative Base
 │   └── security.py      # Password hashing + JWT helpers
 ├── models/
+│   ├── enums.py         # UserRole (customer / provider / admin)
 │   └── user.py          # User ORM model
 ├── schemas/
 │   ├── user.py          # User request/response schemas
 │   └── token.py         # Token schemas
 ├── crud/
 │   └── user.py          # User database operations
-└── api/
-    ├── deps.py          # Shared dependencies (current user)
-    ├── router.py        # Aggregate v1 router
-    └── routes/
-        └── auth.py      # register / login / me
+├── api/
+│   ├── deps.py          # Shared dependencies (current user)
+│   ├── router.py        # Aggregate v1 router
+│   └── routes/
+│       └── auth.py      # register / login / me
+└── static/
+    └── index.html       # Single-page web client (login / register / profile)
 alembic/                 # Database migrations
 docker-compose.yml       # Local PostgreSQL
 ```
@@ -78,35 +100,39 @@ alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
-Open the interactive docs at <http://localhost:8000/docs>.
+- Web client: <http://localhost:8000/>
+- Interactive API docs: <http://localhost:8000/docs>
 
 ## API
 
 Base prefix: `/api/v1`
 
-| Method | Path                  | Description                              |
-| ------ | --------------------- | ---------------------------------------- |
-| POST   | `/api/v1/auth/register` | Create a new user                      |
-| POST   | `/api/v1/auth/login`    | Obtain a JWT access token (OAuth2 form)|
-| GET    | `/api/v1/auth/me`       | Get the current authenticated user     |
-| GET    | `/health`               | Liveness probe                         |
+| Method | Path                    | Description                              |
+| ------ | ----------------------- | ---------------------------------------- |
+| POST   | `/api/v1/auth/register` | Create a new user (`customer`/`provider`)|
+| POST   | `/api/v1/auth/login`    | Obtain a JWT access token (OAuth2 form)  |
+| GET    | `/api/v1/auth/me`       | Get the current authenticated user       |
+| GET    | `/health`               | Liveness probe                           |
 
 ### Example
 
 ```bash
-# Register
+# Register as a provider (penyedia)
 curl -X POST http://localhost:8000/api/v1/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"gintoki@yorozuya.jp","username":"gintoki","password":"sweettooth123"}'
+  -d '{"email":"budi@kolega.id","username":"budi_las","password":"lasterbaik1","role":"provider"}'
 
 # Login (form-encoded, OAuth2 password flow)
 curl -X POST http://localhost:8000/api/v1/auth/login \
-  -d "username=gintoki&password=sweettooth123"
+  -d "username=budi_las&password=lasterbaik1"
 
 # Access a protected route
 curl http://localhost:8000/api/v1/auth/me \
   -H "Authorization: Bearer <access_token>"
 ```
+
+Admin accounts cannot be created through `/auth/register` (the API rejects
+`role: "admin"`); they are provisioned internally.
 
 ## Tests
 
@@ -130,3 +156,15 @@ alembic upgrade head
 # Roll back one revision
 alembic downgrade -1
 ```
+
+## Roadmap
+
+Per the proposal's mandatory (*Wajib*) tier-1 features:
+
+- [x] Daftar & masuk akun (register / login + roles)
+- [ ] Profil penyedia (skills, services, pricing)
+- [ ] Verifikasi identitas penyedia
+- [ ] Pencarian & filter penyedia
+- [ ] Sistem pemesanan (booking)
+- [ ] Ulasan & penilaian
+- [ ] Dasbor penyedia & dasbor pengelola
