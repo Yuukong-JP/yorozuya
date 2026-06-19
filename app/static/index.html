@@ -21,9 +21,11 @@
     * { box-sizing: border-box; }
     body { margin: 0; color: var(--ink); font-family: var(--font);
       background:
-        radial-gradient(900px 500px at 88% -8%, rgba(139,92,246,.10), transparent 60%),
-        radial-gradient(800px 460px at -5% 0%, rgba(91,75,227,.08), transparent 55%),
+        radial-gradient(900px 500px at 88% -8%, rgba(139,92,246,.12), transparent 60%),
+        radial-gradient(800px 460px at -5% 0%, rgba(91,75,227,.10), transparent 55%),
+        radial-gradient(circle at center, rgba(91,75,227,.05) 1px, transparent 1.6px),
         var(--bg);
+      background-size: auto, auto, 22px 22px, auto;
       background-attachment: fixed;
       -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
     button { font-family: inherit; cursor: pointer; }
@@ -322,6 +324,24 @@
     .modal { animation: pop .22s cubic-bezier(.2,.7,.2,1) both; }
     .searchbar { transition: box-shadow .2s, border-color .2s, transform .2s; }
     .searchbar:focus-within { transform: translateY(-1px); }
+
+    /* Category icons (consistent line set) */
+    .cicon { width: 1em; height: 1em; flex: none; vertical-align: -0.15em; }
+    .chip .cicon.chip-ic { width: 16px; height: 16px; }
+    .catpill .pill-ic { width: 13px; height: 13px; vertical-align: -2px; }
+    .cover { position: relative; }
+    .catpill { z-index: 2; }
+    .cover-ic { width: 44px; height: 44px; color: #fff; opacity: .9; position: relative; z-index: 1; filter: drop-shadow(0 3px 8px rgba(0,0,0,.22)); }
+    .cat-tile .ic .tile-ic { width: 24px; height: 24px; color: #fff; }
+    .mini-ic { width: 13px; height: 13px; vertical-align: -2px; }
+
+    /* Faint decorative icons behind the hero ("ramai" tapi halus) */
+    .hero-deco { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .hero-deco svg { position: absolute; color: var(--accent); opacity: .05; }
+    .hero-deco .d1 { width: 120px; height: 120px; top: 12%; left: 6%; transform: rotate(-12deg); }
+    .hero-deco .d2 { width: 86px; height: 86px; top: 20%; right: 9%; transform: rotate(10deg); color: var(--accent-2); }
+    .hero-deco .d3 { width: 70px; height: 70px; bottom: 14%; left: 14%; transform: rotate(8deg); color: var(--accent-2); }
+    .hero-deco .d4 { width: 100px; height: 100px; bottom: 8%; right: 12%; transform: rotate(-8deg); }
   </style>
 </head>
 <body>
@@ -351,6 +371,12 @@
   <!-- LANDING -->
   <section id="view-landing" class="view">
     <div class="lhero">
+      <div class="hero-deco">
+        <svg class="d1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.1" y2="15.9"/><line x1="14.5" y1="14.5" x2="20" y2="20"/><line x1="8.1" y1="8.1" x2="12" y2="12"/></svg>
+        <svg class="d2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7.5 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3.5z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        <svg class="d3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0 5.06 5.06l-7.6 7.6a2.12 2.12 0 0 1-3-3l7.6-7.6a4 4 0 0 0 5.06 5.06"/><path d="M14.7 6.3 18 3"/></svg>
+        <svg class="d4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v13"/><path d="M3 18V5.5A1.5 1.5 0 0 1 4.5 4H10a2 2 0 0 1 2 2 2 2 0 0 1 2-2h5.5A1.5 1.5 0 0 1 21 5.5V18a1 1 0 0 1-1 1h-6.5a1.5 1.5 0 0 0-3 0H4a1 1 0 0 1-1-1z"/></svg>
+      </div>
       <div class="wrap">
         <h1>Cari jasa tepercaya di <span class="grad">kotamu</span>, semudah ngobrol</h1>
         <p>KOLEGA menghubungkan kamu dengan tukang, penjahit, guru les, dan ahli lain di sekitarmu — langsung, tanpa perantara.</p>
@@ -500,21 +526,37 @@
     const API = "/api/v1";
     const TOKEN_KEY = "kolega_token";
     const ROLE_LABELS = { customer: "Warga", provider: "Penyedia", admin: "Pengelola" };
+    const ICONS = {
+      grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+      book: '<path d="M12 7v13"/><path d="M3 18V5.5A1.5 1.5 0 0 1 4.5 4H10a2 2 0 0 1 2 2 2 2 0 0 1 2-2h5.5A1.5 1.5 0 0 1 21 5.5V18a1 1 0 0 1-1 1h-6.5a1.5 1.5 0 0 0-3 0H4a1 1 0 0 1-1-1z"/>',
+      wrench: '<path d="M14.7 6.3a4 4 0 0 0 5.06 5.06l-7.6 7.6a2.12 2.12 0 0 1-3-3l7.6-7.6a4 4 0 0 0 5.06 5.06"/><path d="M14.7 6.3 18 3"/>',
+      plug: '<path d="M9 2v6"/><path d="M15 2v6"/><path d="M6 8h12v3a6 6 0 0 1-12 0z"/><path d="M12 17v5"/>',
+      scissors: '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.1" y2="15.9"/><line x1="14.5" y1="14.5" x2="20" y2="20"/><line x1="8.1" y1="8.1" x2="12" y2="12"/>',
+      pot: '<path d="M4 11h16"/><path d="M5 11a7 7 0 0 1 14 0"/><path d="M5 11v6a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-6"/><path d="M9 7l1-3"/><path d="M14 7l1-3"/>',
+      camera: '<path d="M14.5 4h-5L7.5 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3.5z"/><circle cx="12" cy="13" r="3.5"/>',
+      brush: '<path d="M9.1 11.9 17.1 3.8a2.85 2.85 0 1 1 4 4l-8.1 8.1"/><path d="M7 14.9c-1.7 0-3 1.35-3 3 0 1.3-2.5 1.5-2 2 1.1 1.1 2.5 2 4 2 2.2 0 4-1.8 4-4a3 3 0 0 0-3-3z"/>',
+      brick: '<rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 10h18"/><path d="M3 16h18"/><path d="M9 4v6"/><path d="M15 10v6"/><path d="M9 16v4"/><path d="M15 4v6"/>',
+      bucket: '<path d="M3 7l1.4 12a2 2 0 0 0 2 1.8h11.2a2 2 0 0 0 2-1.8L21 7"/><path d="M2 7h20"/><path d="M9 7V4.5a3 3 0 0 1 6 0V7"/>',
+      heart: '<path d="M19 14c1.5-1.6 3-3.3 3-5.5A5.5 5.5 0 0 0 12 5 5.5 5.5 0 0 0 2 8.5c0 2.2 1.5 3.9 3 5.5l7 7z"/><path d="M3.5 12h3.5l1.5-3 3 6 1.5-3H17"/>',
+      sparkle: '<path d="M12 3v6"/><path d="M12 15v6"/><path d="M3 12h6"/><path d="M15 12h6"/><path d="m6 6 3 3"/><path d="m15 15 3 3"/><path d="m18 6-3 3"/><path d="m9 15-3 3"/>',
+    };
     const CATS = {
-      les_privat: { label: "Les Privat", emo: "📚", g: ["#6366f1", "#8b5cf6"] },
-      tukang_las: { label: "Tukang Las", emo: "🔧", g: ["#f97316", "#fb923c"] },
-      servis_elektronik: { label: "Servis Elektronik", emo: "🔌", g: ["#0ea5e9", "#38bdf8"] },
-      jahit: { label: "Jahit & Permak", emo: "🧵", g: ["#ec4899", "#f472b6"] },
-      masak_katering: { label: "Masak & Katering", emo: "🍳", g: ["#ef4444", "#f87171"] },
-      fotografi: { label: "Fotografi", emo: "📷", g: ["#14b8a6", "#2dd4bf"] },
-      desain: { label: "Desain", emo: "🎨", g: ["#a855f7", "#c084fc"] },
-      bangunan: { label: "Tukang Bangunan", emo: "🧱", g: ["#eab308", "#facc15"] },
-      kebersihan: { label: "Kebersihan & ART", emo: "🧹", g: ["#22c55e", "#4ade80"] },
-      perawatan: { label: "Perawatan Lansia", emo: "🩺", g: ["#06b6d4", "#22d3ee"] },
-      lainnya: { label: "Lainnya", emo: "✨", g: ["#64748b", "#94a3b8"] },
+      les_privat: { label: "Les Privat", emo: "📚", ic: "book", g: ["#6366f1", "#8b5cf6"] },
+      tukang_las: { label: "Tukang Las", emo: "🔧", ic: "wrench", g: ["#f97316", "#fb923c"] },
+      servis_elektronik: { label: "Servis Elektronik", emo: "🔌", ic: "plug", g: ["#0ea5e9", "#38bdf8"] },
+      jahit: { label: "Jahit & Permak", emo: "🧵", ic: "scissors", g: ["#ec4899", "#f472b6"] },
+      masak_katering: { label: "Masak & Katering", emo: "🍳", ic: "pot", g: ["#ef4444", "#f87171"] },
+      fotografi: { label: "Fotografi", emo: "📷", ic: "camera", g: ["#14b8a6", "#2dd4bf"] },
+      desain: { label: "Desain", emo: "🎨", ic: "brush", g: ["#a855f7", "#c084fc"] },
+      bangunan: { label: "Tukang Bangunan", emo: "🧱", ic: "brick", g: ["#eab308", "#facc15"] },
+      kebersihan: { label: "Kebersihan & ART", emo: "🧹", ic: "bucket", g: ["#22c55e", "#4ade80"] },
+      perawatan: { label: "Perawatan Lansia", emo: "🩺", ic: "heart", g: ["#06b6d4", "#22d3ee"] },
+      lainnya: { label: "Lainnya", emo: "✨", ic: "sparkle", g: ["#64748b", "#94a3b8"] },
     };
     const catMeta = (c) => CATS[c] || CATS.lainnya;
     const grad = (c) => { const m = catMeta(c); return `linear-gradient(135deg, ${m.g[0]}, ${m.g[1]})`; };
+    const svgIcon = (name, cls) => `<svg class="cicon${cls ? " " + cls : ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ICONS.sparkle}</svg>`;
+    const catIcon = (c, cls) => svgIcon(catMeta(c).ic, cls);
     let currentUser = null;
     let activeCat = "";
     let selectedStar = 0;
@@ -620,7 +662,7 @@
       if (!wrap) return;
       wrap.innerHTML = Object.entries(CATS).filter(([k]) => k !== "lainnya").map(([k, m]) =>
         `<div class="cat-tile" onclick="setCat('${k}'); navTo('browse')">
-          <div class="ic" style="background:${grad(k)}">${m.emo}</div>
+          <div class="ic" style="background:${grad(k)}">${catIcon(k, "tile-ic")}</div>
           <div class="ct">${m.label}</div><div class="cs">Lihat penyedia</div></div>`).join("");
     }
     function refreshUserbox() {
@@ -639,9 +681,9 @@
 
     function renderChips() {
       const wrap = document.getElementById("cat-chips");
-      const all = `<button class="chip ${activeCat === "" ? "active" : ""}" onclick="setCat('')"><span class="emo">🗂️</span>Semua</button>`;
+      const all = `<button class="chip ${activeCat === "" ? "active" : ""}" onclick="setCat('')">${svgIcon("grid", "chip-ic")}Semua</button>`;
       const rest = Object.entries(CATS).map(([k, m]) =>
-        `<button class="chip ${activeCat === k ? "active" : ""}" onclick="setCat('${k}')"><span class="emo">${m.emo}</span>${m.label}</button>`).join("");
+        `<button class="chip ${activeCat === k ? "active" : ""}" onclick="setCat('${k}')">${catIcon(k, "chip-ic")}${m.label}</button>`).join("");
       wrap.innerHTML = all + rest;
     }
     function setCat(c) { activeCat = c; renderChips(); loadBrowse(); }
@@ -671,7 +713,7 @@
       const verif = p.is_verified ? `<span class="verif" title="Terverifikasi">${VERIF_ICON}</span>` : "";
       return `<div class="gig" style="animation-delay:${(i % 12) * 45}ms" onclick="openProvider(${p.id})">
         <div class="cover" style="background:${grad(cat)}">
-          <span class="catpill">${m.emo} ${m.label}</span><span class="emo">${m.emo}</span>
+          <span class="catpill">${catIcon(cat, "pill-ic")} ${m.label}</span>${catIcon(cat, "cover-ic")}
         </div>
         <div class="body">
           <div class="ava" style="background:${grad(cat)}">${initial(p.display_name)}</div>
@@ -791,7 +833,7 @@
       const svc = services.length ? services.map((s) => {
         const sm = catMeta(s.category);
         return `<div class="svc"><div class="st">
-          <div><div class="stitle">${esc(s.title)}</div><div class="scat">${sm.emo} ${sm.label}</div></div>
+          <div><div class="stitle">${esc(s.title)}</div><div class="scat">${catIcon(s.category, "mini-ic")} ${sm.label}</div></div>
           <div class="price"><b>${rp(s.price)}</b><small>${esc(s.price_unit)}</small></div></div>
           ${s.description ? `<div class="desc">${esc(s.description)}</div>` : ""}
           <div class="svc-act"><button class="btn-mini" onclick="openBooking(${s.id})">Pesan jasa ini</button></div></div>`;
@@ -986,7 +1028,7 @@
     function svcRow(s) {
       const m = catMeta(s.category);
       return `<div class="svc-row"><div><div class="t">${esc(s.title)}</div>
-        <div class="s"><span class="pill-cat">${m.emo} ${m.label}</span> ${rp(s.price)} · ${esc(s.price_unit)}</div></div>
+        <div class="s"><span class="pill-cat">${catIcon(s.category, "mini-ic")} ${m.label}</span> ${rp(s.price)} · ${esc(s.price_unit)}</div></div>
         <button class="del" onclick="deleteService(${s.id})">Hapus</button></div>`;
     }
     function serviceForm() {
