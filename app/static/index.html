@@ -267,6 +267,32 @@
     .book-done { text-align: center; padding: 14px 0 4px; }
     .book-check { width: 54px; height: 54px; border-radius: 50%; background: var(--ok-bg); color: var(--ok); font-size: 28px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
     .book-done h3 { margin: 0; font-size: 19px; }
+    .sum { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+    .sum-row { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding: 12px 14px; border-bottom: 1px solid var(--line-soft); }
+    .sum-row span { color: var(--muted); font-size: 13px; } .sum-row b { font-size: 14px; text-align: right; }
+    .sum-note { padding: 12px 14px; } .sum-note span { color: var(--muted); font-size: 13px; } .sum-note p { margin: 4px 0 0; font-size: 13.5px; color: var(--ink2); }
+    .sum-info { font-size: 12.5px; color: var(--muted); background: var(--accent-weak); border-radius: 10px; padding: 11px 13px; margin-bottom: 14px; }
+    .sum-actions { display: flex; gap: 10px; }
+
+    /* Customer order cards + status timeline */
+    .order-item { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-top: 12px; }
+    .oi-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .oi-head .t { font-weight: 700; font-size: 14.5px; } .oi-head .s { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+    .oi-note { color: var(--ink2); font-size: 13px; margin-top: 10px; }
+    .oi-act { margin-top: 12px; }
+    .tl { display: flex; align-items: center; margin-top: 16px; }
+    .tl-step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: none; }
+    .tl-dot { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; background: var(--line); color: var(--muted); }
+    .tl-step.done .tl-dot { background: linear-gradient(120deg, var(--accent), var(--accent-2)); color: #fff; }
+    .tl-lab { font-size: 11px; color: var(--muted); text-align: center; }
+    .tl-step.done .tl-lab { color: var(--ink); font-weight: 600; }
+    .tl-bar { flex: 1; height: 3px; background: var(--line); margin: 0 4px; margin-bottom: 22px; border-radius: 2px; }
+    .tl-bar.done { background: linear-gradient(120deg, var(--accent), var(--accent-2)); }
+    .tl-bad { margin-top: 14px; padding: 10px 14px; border-radius: 10px; background: #fef2f2; color: var(--err); font-size: 13px; font-weight: 600; }
+    .rev-highlight { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-radius: 14px; margin-bottom: 14px; color: #fff; background: linear-gradient(135deg, #1c1830, #2a2342); }
+    .rev-highlight span { font-size: 12.5px; color: rgba(255,255,255,.75); } .rev-highlight b { font-size: 22px; font-weight: 800; }
+    .notif { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--err); color: #fff; font-size: 11px; font-weight: 700; margin-left: 2px; }
+    .navlink.active .notif { background: #fff; color: var(--accent); }
     .astats { display: flex; gap: 12px; flex-wrap: wrap; margin: 6px 0 8px; }
     .astat { flex: 1; min-width: 92px; border: 1px solid var(--line); border-radius: 13px; padding: 14px; text-align: center; }
     .astat b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
@@ -353,6 +379,26 @@
     .cr-text b { display: block; font-size: 15px; }
     .cr-text span { font-size: 13px; color: var(--muted); }
     @media (max-width: 560px) { .custom-req { flex-direction: column; align-items: stretch; text-align: center; } }
+
+    /* Provider detail — product-page layout */
+    .detail-grid { display: grid; grid-template-columns: 1fr 322px; gap: 20px; align-items: start; }
+    .detail-main { overflow: hidden; }
+    .detail-side { position: sticky; top: 84px; }
+    .order-card { padding: 20px; }
+    .order-card .oc-head { display: flex; align-items: center; gap: 12px; }
+    .oc-ava { width: 52px; height: 52px; border-radius: 14px; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; flex: none; }
+    .oc-name { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+    .oc-rating { display: flex; align-items: center; gap: 6px; margin: 14px 0 4px; font-size: 13px; color: var(--muted); }
+    .oc-rating .gstar { color: #f59e0b; } .oc-rating .mstar { color: #d4d4d8; } .oc-rating b { color: var(--ink); }
+    .oc-price { display: flex; align-items: baseline; justify-content: space-between; padding: 12px 0; margin: 8px 0; border-top: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+    .oc-price span { color: var(--muted); font-size: 13px; } .oc-price b { font-size: 20px; }
+    .order-card .btn { width: 100%; margin-top: 6px; }
+    .oc-contact { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; color: var(--ink); }
+    .oc-contact:hover { border-color: #d4d4d8; }
+    .oc-meta { color: var(--muted); font-size: 12.5px; margin-top: 10px; }
+    .oc-verified { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 12.5px; color: var(--ok); font-weight: 600; }
+    .oc-verified svg { width: 15px; height: 15px; }
+    @media (max-width: 860px) { .detail-grid { grid-template-columns: 1fr; } .detail-side { position: static; } }
   </style>
 </head>
 <body>
@@ -566,6 +612,7 @@
     let activeCat = "";
     let selectedStar = 0;
     let currentDetail = null;
+    let pendingBooking = null;
     const BOOK_STATUS = {
       pending: { label: "Menunggu", cls: "off" },
       accepted: { label: "Diterima", cls: "on" },
@@ -633,6 +680,12 @@
     const esc = (s) => (s == null ? "" : String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])));
     const rp = (n) => "Rp " + Number(n).toLocaleString("id-ID");
     const initial = (s) => (s ? s[0].toUpperCase() : "?");
+    // Avatar that uses a real photo when set, otherwise a colored initial.
+    function ava(cls, name, photo, bgCat) {
+      const bg = bgCat ? `background:${grad(bgCat)}` : "";
+      if (photo) return `<div class="${cls}" style="background-image:url('${esc(photo)}');background-size:cover;background-position:center;color:transparent">${initial(name)}</div>`;
+      return `<div class="${cls}" style="${bg}">${initial(name)}</div>`;
+    }
     const VERIF_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l2.4 2.1 3.1-.5 1.3 2.9 2.9 1.3-.5 3.1L24 12l-2.1 2.4.5 3.1-2.9 1.3-1.3 2.9-3.1-.5L12 23l-2.4-2.1-3.1.5-1.3-2.9-2.9-1.3.5-3.1L0 12l2.1-2.4-.5-3.1 2.9-1.3L5.8 2.6l3.1.5z"/><path d="M10.5 14.6l-2.1-2.1-1.3 1.3 3.4 3.4 5.9-5.9-1.3-1.3z" fill="#fff"/></svg>';
     // Rating slot: shows real average + count when available, otherwise an honest placeholder.
     function ratingHTML(p) {
@@ -687,13 +740,24 @@
       const navAccount = document.getElementById("nav-account");
       if (currentUser) {
         navAccount.classList.remove("hidden");
+        navAccount.innerHTML = "Akun";
         box.innerHTML = `<span class="uname">${esc(currentUser.username)}</span>
           <span class="role-chip">${ROLE_LABELS[currentUser.role] || currentUser.role}</span>
           <button class="link-btn" onclick="logout()">Keluar</button>`;
+        updateNotif();
       } else {
         navAccount.classList.add("hidden");
+        navAccount.innerHTML = "Akun";
         box.innerHTML = `<button class="ghost" onclick="navTo('account')">Masuk</button>`;
       }
+    }
+    async function updateNotif() {
+      if (!currentUser || currentUser.role !== "provider") return;
+      const { ok, data } = await api("/bookings/incoming");
+      if (!ok || !Array.isArray(data)) return;
+      const pending = data.filter((b) => b.status === "pending").length;
+      const navAccount = document.getElementById("nav-account");
+      navAccount.innerHTML = `Akun${pending ? ` <span class="notif">${pending}</span>` : ""}`;
     }
 
     function renderChips() {
@@ -733,7 +797,7 @@
           <span class="catpill">${catIcon(cat, "pill-ic")} ${m.label}</span>${catIcon(cat, "cover-ic")}
         </div>
         <div class="body">
-          <div class="ava" style="background:${grad(cat)}">${initial(p.display_name)}</div>
+          ${ava("ava", p.display_name, p.photo_url, cat)}
           <div class="nm">${esc(p.display_name)} ${verif}</div>
           <div class="pf">${esc(p.profession)}</div>
           ${ratingHTML(p)}
@@ -819,19 +883,41 @@
         <input id="book-time" placeholder="mis. Sabtu 21 Jun, pagi" maxlength="120" />
         <label>${svc ? "Catatan untuk penyedia (opsional)" : "Layanan yang kamu butuhkan"}</label>
         <textarea id="book-note" placeholder="${svc ? "Jelaskan kebutuhanmu…" : "mis. Perbaikan atap bocor, pasang stop kontak baru…"}" maxlength="1000"></textarea>
-        <button class="btn" style="margin-top:16px" onclick="submitBooking(${p.id})">Kirim pesanan</button>
+        <button class="btn" style="margin-top:16px" onclick="reviewBooking(${p.id})">Lanjut ke ringkasan</button>
         <div id="book-msg" class="msg"></div>`;
       document.getElementById("modal").classList.remove("hidden");
     }
-    async function submitBooking(providerId) {
+    function reviewBooking(providerId) {
       const sid = document.getElementById("book-service").value;
-      const body = {
+      pendingBooking = {
         provider_id: providerId,
         service_id: sid ? Number(sid) : null,
         preferred_time: document.getElementById("book-time").value.trim() || null,
         note: document.getElementById("book-note").value.trim() || null,
       };
-      const { ok, data } = await api("/bookings", { method: "POST", body: JSON.stringify(body) });
+      const p = currentDetail;
+      const svc = pendingBooking.service_id ? (p.services || []).find((s) => s.id === pendingBooking.service_id) : null;
+      document.getElementById("modal-box").innerHTML = `
+        <div class="modal-head"><h3>Ringkasan pesanan</h3><button class="modal-x" onclick="closeModal()">×</button></div>
+        <div class="sum">
+          <div class="sum-row"><span>Penyedia</span><b>${esc(p.display_name)}</b></div>
+          <div class="sum-row"><span>Layanan</span><b>${svc ? esc(svc.title) : "Permintaan khusus"}</b></div>
+          ${svc
+            ? `<div class="sum-row"><span>Perkiraan harga</span><b>${rp(svc.price)} <small style="color:var(--faint);font-weight:500">${esc(svc.price_unit)}</small></b></div>`
+            : `<div class="sum-row"><span>Harga</span><b>Menunggu penawaran</b></div>`}
+          <div class="sum-row"><span>Waktu</span><b>${pendingBooking.preferred_time ? esc(pendingBooking.preferred_time) : "—"}</b></div>
+          ${pendingBooking.note ? `<div class="sum-note"><span>Catatan</span><p>“${esc(pendingBooking.note)}”</p></div>` : ""}
+        </div>
+        <div class="sum-info">Penyedia akan meninjau & mengonfirmasi pesananmu. Pembayaran dilakukan langsung saat layanan, di luar aplikasi.</div>
+        <div class="sum-actions">
+          <button class="btn-outline btn-lg" style="padding:11px 18px;font-size:14px" onclick="openBooking(${pendingBooking.service_id || "null"})">← Ubah</button>
+          <button class="btn" style="flex:1" onclick="submitBooking()">Konfirmasi pesanan</button>
+        </div>
+        <div id="book-msg" class="msg"></div>`;
+    }
+    async function submitBooking() {
+      if (!pendingBooking) return;
+      const { ok, data } = await api("/bookings", { method: "POST", body: JSON.stringify(pendingBooking) });
       if (ok) {
         document.getElementById("modal-box").innerHTML = `<div class="book-done">
           <div class="book-check">✓</div><h3>Pesanan terkirim!</h3>
@@ -857,30 +943,45 @@
           ${s.description ? `<div class="desc">${esc(s.description)}</div>` : ""}
           <div class="svc-act"><button class="btn-mini" onclick="openBooking(${s.id})">Pesan jasa ini</button></div></div>`;
       }).join("") : `<div class="empty" style="padding:32px 0">Penyedia ini belum menambahkan layanan.</div>`;
+      const startPrice = services.length ? Math.min(...services.map((s) => s.price)) : null;
+      const photo = p.photo_url;
       document.getElementById("browse-home").classList.add("hidden");
       const d = document.getElementById("browse-detail");
       d.classList.remove("hidden");
       d.innerHTML = `<button class="back" onclick="showBrowseHome()">← Kembali ke pencarian</button>
-        <div class="panel">
-          <div class="banner" style="background:${grad(cat)}"></div>
-          <div class="detail-body">
-            <div class="detail-head">
-              <div class="ava" style="background:${grad(cat)}">${initial(p.display_name)}</div>
-              <div class="meta"><h2>${esc(p.display_name)} ${verif}</h2>
-                <div class="sub">${esc(p.profession)}${p.area ? " · " + esc(p.area) : ""} · ${esc(p.city || "")}</div>
-                ${ratingHTML(p)}</div>
+        <div class="detail-grid">
+          <div class="detail-main panel">
+            <div class="banner" style="background:${grad(cat)}"></div>
+            <div class="detail-body">
+              <div class="detail-head">
+                ${ava("ava", p.display_name, photo, cat)}
+                <div class="meta"><h2>${esc(p.display_name)} ${verif}</h2>
+                  <div class="sub">${esc(p.profession)}${p.area ? " · " + esc(p.area) : ""} · ${esc(p.city || "")}</div>
+                  ${ratingHTML(p)}</div>
+              </div>
+              ${p.headline ? `<p class="bio" style="font-weight:500">${esc(p.headline)}</p>` : ""}
+              ${p.bio ? `<p class="bio">${esc(p.bio)}</p>` : ""}
+              <div class="section-title">Layanan (${services.length})</div>
+              ${svc}
+              <div class="custom-req">
+                <div class="cr-text"><b>Butuh layanan lain?</b><span>Ajukan permintaan khusus di luar daftar — penyedia akan beri penawaran.</span></div>
+                <button class="btn-lg btn-primary" style="padding:11px 20px;font-size:14px;white-space:nowrap" onclick="openBooking(null)">Ajukan permintaan</button>
+              </div>
+              ${reviewsBlock(p)}
             </div>
-            ${p.headline ? `<p class="bio" style="font-weight:500">${esc(p.headline)}</p>` : ""}
-            ${p.bio ? `<p class="bio">${esc(p.bio)}</p>` : ""}
-            ${p.phone ? `<div class="contact">📞 ${esc(p.phone)}</div>` : ""}
-            <div class="section-title">Layanan (${services.length})</div>
-            ${svc}
-            <div class="custom-req">
-              <div class="cr-text"><b>Butuh layanan lain?</b><span>Ajukan permintaan khusus di luar daftar — penyedia akan beri penawaran.</span></div>
-              <button class="btn-lg btn-primary" style="padding:11px 20px;font-size:14px;white-space:nowrap" onclick="openBooking(null)">Ajukan permintaan</button>
-            </div>
-            ${reviewsBlock(p)}
           </div>
+          <aside class="detail-side">
+            <div class="order-card panel">
+              <div class="oc-head">${ava("oc-ava", p.display_name, photo, cat)}
+                <div><div class="oc-name">${esc(p.display_name)} ${verif}</div><div class="sub">${esc(p.profession)}</div></div></div>
+              <div class="oc-rating">${goldStars(p.rating_avg)} <b>${Number(p.rating_avg || 0).toFixed(1)}</b> <span>(${p.rating_count || 0} ulasan)</span></div>
+              ${startPrice != null ? `<div class="oc-price"><span>Mulai dari</span><b>${rp(startPrice)}</b></div>` : ""}
+              <button class="btn" onclick="openBooking(null)">Pesan sekarang</button>
+              ${p.phone ? `<a class="oc-contact" href="tel:${esc(p.phone)}">📞 ${esc(p.phone)}</a>` : ""}
+              <div class="oc-meta">📍 ${esc(p.city || "")}${p.area ? " · " + esc(p.area) : ""}</div>
+              ${p.is_verified ? `<div class="oc-verified">${VERIF_ICON} Identitas terverifikasi pengelola</div>` : `<div class="oc-meta" style="color:var(--faint)">Belum terverifikasi</div>`}
+            </div>
+          </aside>
         </div>`;
       const mine = currentUser ? (p.reviews || []).find((r) => r.author_username === currentUser.username) : null;
       selectedStar = 0;
@@ -1018,12 +1119,24 @@
         ${list}
       </div></div>`;
     }
+    function statusTimeline(status) {
+      if (status === "rejected") return `<div class="tl-bad">✕ Pesanan ditolak penyedia</div>`;
+      if (status === "cancelled") return `<div class="tl-bad" style="color:var(--muted);background:var(--line-soft)">Pesanan dibatalkan</div>`;
+      const steps = [["Menunggu"], ["Diterima"], ["Dikerjakan/Selesai"]];
+      const idx = ({ pending: 0, accepted: 1, completed: 2 })[status] ?? 0;
+      return `<div class="tl">${steps.map(([label], i) => `
+        <div class="tl-step ${i <= idx ? "done" : ""}"><span class="tl-dot">${i <= idx ? "✓" : i + 1}</span><span class="tl-lab">${label}</span></div>
+        ${i < steps.length - 1 ? `<span class="tl-bar ${i < idx ? "done" : ""}"></span>` : ""}`).join("")}</div>`;
+    }
     function custBookingRow(b) {
-      const cancel = b.status === "pending" ? `<button class="del" onclick="cancelBooking(${b.id})">Batalkan</button>` : "";
-      return `<div class="svc-row"><div><div class="t">${esc(b.provider_name)} ${bookBadge(b.status)}</div>
-        <div class="s">${b.service_title ? esc(b.service_title) + " · " : ""}${b.preferred_time ? "🕑 " + esc(b.preferred_time) : "tanpa waktu khusus"}</div>
-        ${b.note ? `<div class="s" style="margin-top:4px">“${esc(b.note)}”</div>` : ""}</div>
-        ${cancel}</div>`;
+      return `<div class="order-item">
+        <div class="oi-head"><div><div class="t">${esc(b.provider_name)}</div>
+          <div class="s">${b.service_title ? esc(b.service_title) : "Permintaan khusus"}${b.preferred_time ? " · 🕑 " + esc(b.preferred_time) : ""}</div></div>
+          ${bookBadge(b.status)}</div>
+        ${b.note ? `<div class="oi-note">“${esc(b.note)}”</div>` : ""}
+        ${statusTimeline(b.status)}
+        ${b.status === "pending" ? `<div class="oi-act"><button class="del" onclick="cancelBooking(${b.id})">Batalkan pesanan</button></div>` : ""}
+      </div>`;
     }
     async function cancelBooking(id) { await api(`/bookings/${id}/cancel`, { method: "POST" }); showDashboard(); }
     async function renderProviderDashboard(dash) {
@@ -1050,6 +1163,9 @@
       const provChart = barChart("Pesanan per status", ["pending", "accepted", "completed", "rejected", "cancelled"].map((k) => ({
         label: (BOOK_STATUS[k] || {}).label || k, value: sc[k] || 0, color: STATUS_COLOR[k],
       })));
+      const priceOf = (sid) => { const s = (services).find((x) => x.id === sid); return s ? s.price : 0; };
+      const revenue = (incoming || []).filter((b) => b.status === "completed").reduce((sum, b) => sum + priceOf(b.service_id), 0);
+      const revHighlight = `<div class="rev-highlight"><span>Estimasi pendapatan · pesanan selesai</span><b>${rp(revenue)}</b></div>`;
       const cat = (services[0] && services[0].category) || "lainnya";
       const ver = profile.is_verified ? `<span class="badge on">${VERIF_ICON}Terverifikasi</span>` : `<span class="badge off">Menunggu verifikasi</span>`;
       dash.innerHTML = `<div class="panel">
@@ -1064,6 +1180,7 @@
           ${profile.headline ? `<p class="bio" style="font-weight:500">${esc(profile.headline)}</p>` : ""}
           <div class="section-title">Ringkasan</div>
           ${provStats}
+          ${revHighlight}
           ${provChart}
           <div class="section-title">Pesanan masuk (${nb})</div>
           ${bookingList}
@@ -1082,7 +1199,7 @@
         ${b.note ? `<div class="s" style="margin-top:4px">“${esc(b.note)}”</div>` : ""}</div>
         <div class="row-actions">${actions}</div></div>`;
     }
-    async function setBookStatus(id, st) { await api(`/bookings/${id}/status`, { method: "POST", body: JSON.stringify({ status: st }) }); showDashboard(); }
+    async function setBookStatus(id, st) { await api(`/bookings/${id}/status`, { method: "POST", body: JSON.stringify({ status: st }) }); showDashboard(); updateNotif(); }
     function svcRow(s) {
       const m = catMeta(s.category);
       return `<div class="svc-row"><div><div class="t">${esc(s.title)}</div>
@@ -1117,6 +1234,7 @@
             <div class="field"><label>No. HP (opsional)</label><input id="pf-phone" value="${esc(p.phone || "")}" /></div>
             <div class="field"><label>Area layanan (opsional)</label><input id="pf-area" value="${esc(p.area || "")}" placeholder="Kel. Silaing Bawah" /></div>
           </div>
+          <div class="field"><label>URL foto profil (opsional)</label><input id="pf-photo" value="${esc(p.photo_url || "")}" placeholder="https://… (tempel link gambar)" /></div>
           <div class="field"><label>Tentang (opsional)</label><textarea id="pf-bio" placeholder="Ceritakan pengalamanmu…">${esc(p.bio || "")}</textarea></div>
           <button class="btn" type="submit">${existing ? "Simpan perubahan" : "Buat profil"}</button>
           <div id="pf-msg" class="msg"></div>
@@ -1130,6 +1248,7 @@
         headline: document.getElementById("pf-headline").value.trim() || null,
         phone: document.getElementById("pf-phone").value.trim() || null,
         area: document.getElementById("pf-area").value.trim() || null,
+        photo_url: document.getElementById("pf-photo").value.trim() || null,
         bio: document.getElementById("pf-bio").value.trim() || null,
       };
       const { ok, data } = await api("/providers/me", { method: isEdit ? "PATCH" : "POST", body: JSON.stringify(body) });
