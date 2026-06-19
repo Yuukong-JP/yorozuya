@@ -45,6 +45,15 @@ async def set_user_verified(
     return user
 
 
+async def set_user_active(db: AsyncSession, user: User, active: bool) -> User:
+    """Activate/deactivate an account (admin moderation). Inactive users
+    cannot log in or use authenticated endpoints."""
+    user.is_active = active
+    await db.commit()
+    await db.refresh(user)
+    return user
+
+
 async def authenticate_user(
     db: AsyncSession, username: str, password: str
 ) -> User | None:

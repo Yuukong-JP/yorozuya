@@ -90,6 +90,11 @@
     .band h2 { color: #fff; }
     .band p { color: rgba(255,255,255,.72); }
     .lfoot { border-top: 1px solid var(--line); padding: 28px 0; text-align: center; color: var(--faint); font-size: 13px; }
+    .lfoot-links { margin-top: 10px; display: flex; gap: 8px; justify-content: center; align-items: center; }
+    .legal { font-size: 14px; color: var(--ink2); line-height: 1.6; }
+    .legal h4 { font-size: 14px; font-weight: 700; color: var(--ink); margin: 18px 0 6px; }
+    .legal p { margin: 0 0 10px; } .legal ul { margin: 0 0 10px; padding-left: 20px; } .legal li { margin-bottom: 4px; }
+    .legal-note { font-size: 12.5px; color: var(--faint); font-style: italic; border-top: 1px solid var(--line-soft); padding-top: 12px; margin-top: 14px; }
     .compact-hero { padding: 30px 0 6px; text-align: center; }
     .compact-hero h1 { font-size: 24px; font-weight: 800; margin: 0 0 16px; letter-spacing: -0.02em; }
 
@@ -356,7 +361,13 @@
       </div>
     </div>
 
-    <div class="lfoot">KOLEGA — Kolaborasi Layanan Ekonomi &amp; Geliat Warga · Padang Panjang</div>
+    <div class="lfoot">KOLEGA — Kolaborasi Layanan Ekonomi &amp; Geliat Warga · Padang Panjang
+      <div class="lfoot-links">
+        <button class="link-accent" onclick="showLegal('privacy')">Kebijakan Privasi</button>
+        <span>·</span>
+        <button class="link-accent" onclick="showLegal('terms')">Ketentuan Layanan</button>
+      </div>
+    </div>
   </section>
 
   <main id="app-main" class="hidden">
@@ -455,6 +466,47 @@
       cancelled: { label: "Dibatalkan", cls: "off" },
     };
     const bookBadge = (s) => { const m = BOOK_STATUS[s] || BOOK_STATUS.pending; return `<span class="badge ${m.cls}">${m.label}</span>`; };
+    const LEGAL = {
+      privacy: {
+        title: "Kebijakan Privasi",
+        body: `<p>KOLEGA mengumpulkan data secukupnya untuk menghubungkan warga dengan penyedia jasa di sekitarnya.</p>
+          <h4>Data yang dikumpulkan</h4>
+          <ul><li>Nama pengguna (username) dan email saat mendaftar.</li>
+          <li>Bagi penyedia: nama tampilan, keahlian, nomor HP, area, dan layanan yang ditawarkan.</li>
+          <li>Ulasan, penilaian, dan pesanan yang kamu buat.</li></ul>
+          <h4>Penggunaan data</h4>
+          <ul><li>Menampilkan profil & layanan penyedia kepada publik.</li>
+          <li>Memungkinkan pemesanan dan komunikasi antara warga dan penyedia.</li>
+          <li>Moderasi dan menjaga keamanan platform.</li></ul>
+          <h4>Keamanan</h4>
+          <p>Kata sandi disimpan dalam bentuk terenkripsi (hash), tidak pernah disimpan apa adanya. Data disimpan di server yang dikelola pengelola layanan.</p>
+          <h4>Hak kamu</h4>
+          <p>Kamu dapat meminta perubahan atau penghapusan data dengan menghubungi pengelola.</p>
+          <p class="legal-note">Dokumen ini adalah draf awal dan perlu ditinjau oleh tim hukum/Diskominfo sebelum peluncuran resmi.</p>`,
+      },
+      terms: {
+        title: "Ketentuan Layanan",
+        body: `<p>Dengan menggunakan KOLEGA, kamu menyetujui ketentuan berikut.</p>
+          <h4>Tentang layanan</h4>
+          <p>KOLEGA adalah platform yang mempertemukan warga dengan penyedia jasa informal. Pengelola bukan pihak dalam transaksi antara warga dan penyedia.</p>
+          <h4>Kewajiban pengguna</h4>
+          <ul><li>Memberikan informasi yang benar.</li>
+          <li>Tidak menyalahgunakan platform dan menghormati pengguna lain.</li>
+          <li>Penyedia bertanggung jawab atas layanan dan harga yang ditawarkan.</li></ul>
+          <h4>Ulasan</h4>
+          <p>Ulasan harus jujur. Konten kasar, SARA, atau spam dilarang dan dapat dihapus oleh pengelola.</p>
+          <h4>Akun</h4>
+          <p>Pengelola berhak menonaktifkan akun yang melanggar ketentuan.</p>
+          <h4>Batasan tanggung jawab</h4>
+          <p>Kesepakatan, pembayaran, dan pelaksanaan pekerjaan terjadi langsung antara warga dan penyedia, di luar aplikasi, dan menjadi tanggung jawab masing-masing.</p>
+          <p class="legal-note">Dokumen ini adalah draf awal dan perlu ditinjau oleh tim hukum/Diskominfo sebelum peluncuran resmi.</p>`,
+      },
+    };
+    function showLegal(kind) {
+      const c = LEGAL[kind];
+      document.getElementById("modal-box").innerHTML = `<div class="modal-head"><h3>${c.title}</h3><button class="modal-x" onclick="closeModal()">×</button></div><div class="legal">${c.body}</div>`;
+      document.getElementById("modal").classList.remove("hidden");
+    }
 
     const token = () => localStorage.getItem(TOKEN_KEY);
     const authH = () => (token() ? { Authorization: `Bearer ${token()}` } : {});
@@ -608,7 +660,8 @@
             <div class="rev-head"><div class="rev-ava">${initial(r.author_username)}</div>
               <div><div class="rev-name">${esc(r.author_username)}</div><div class="rev-stars">${goldStars(r.rating)}</div></div>
               <div class="rev-date">${fmtDate(r.created_at)}</div></div>
-            ${r.comment ? `<div class="rev-comment">${esc(r.comment)}</div>` : ""}</div>`).join("")
+            ${r.comment ? `<div class="rev-comment">${esc(r.comment)}</div>` : ""}
+            ${currentUser && currentUser.role === "admin" ? `<div style="padding-left:46px;margin-top:8px"><button class="del" onclick="adminDeleteReview(${r.id}, ${p.id})">🗑 Hapus ulasan</button></div>` : ""}</div>`).join("")
         : `<div class="empty" style="padding:22px 0">Belum ada ulasan. Jadilah yang pertama!</div>`;
       return `<div class="section-title">Ulasan (${reviews.length})</div>${summary}${form}${list}`;
     }
@@ -769,12 +822,16 @@
         const badge = p.is_verified
           ? `<span class="badge on">${VERIF_ICON}Terverifikasi</span>`
           : `<span class="badge off">Menunggu</span>`;
-        const btn = p.is_verified
-          ? `<button class="del" onclick="setVerify(${p.id}, false)">Cabut</button>`
+        const inactive = p.owner_active ? "" : `<span class="badge rej">Nonaktif</span>`;
+        const vbtn = p.is_verified
+          ? `<button class="del" onclick="setVerify(${p.id}, false)">Cabut verif</button>`
           : `<button class="btn-mini" onclick="setVerify(${p.id}, true)">Verifikasi</button>`;
-        return `<div class="svc-row"><div><div class="t">${esc(p.display_name)} ${badge}</div>
+        const abtn = p.owner_active
+          ? `<button class="del" onclick="setActive(${p.user_id}, false)">Nonaktifkan</button>`
+          : `<button class="btn-mini" onclick="setActive(${p.user_id}, true)">Aktifkan</button>`;
+        return `<div class="svc-row"><div><div class="t">${esc(p.display_name)} ${badge} ${inactive}</div>
           <div class="s">${esc(p.profession)} · ${p.service_count || 0} layanan · ⭐ ${Number(p.rating_avg || 0).toFixed(1)} (${p.rating_count || 0})</div></div>
-          ${btn}</div>`;
+          <div class="row-actions">${vbtn}${abtn}</div></div>`;
       }).join("") || `<div class="empty" style="padding:24px 0">Belum ada penyedia terdaftar.</div>`;
       dash.innerHTML = `<div class="panel"><div class="detail-body" style="padding-top:24px">
         <div class="dash-head"><div class="ava">${initial(currentUser.username)}</div>
@@ -790,6 +847,16 @@
     async function setVerify(id, verified) {
       await api(`/admin/providers/${id}/${verified ? "verify" : "unverify"}`, { method: "POST" });
       showDashboard();
+    }
+    async function setActive(userId, active) {
+      if (!active && !confirm("Nonaktifkan akun ini? Pengguna tidak akan bisa masuk.")) return;
+      await api(`/admin/users/${userId}/${active ? "activate" : "deactivate"}`, { method: "POST" });
+      showDashboard();
+    }
+    async function adminDeleteReview(reviewId, providerId) {
+      if (!confirm("Hapus ulasan ini?")) return;
+      await api(`/admin/reviews/${reviewId}`, { method: "DELETE" });
+      openProvider(providerId);
     }
     async function renderCustomerDashboard(dash) {
       const u = currentUser;

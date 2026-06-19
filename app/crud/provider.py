@@ -182,6 +182,11 @@ async def list_reviews(db: AsyncSession, provider_id: int) -> list[Review]:
     return list(result.scalars().all())
 
 
+async def delete_review(db: AsyncSession, review: Review) -> None:
+    await db.delete(review)
+    await db.commit()
+
+
 async def create_or_update_review(
     db: AsyncSession, provider_id: int, author_id: int, data: ReviewCreate
 ) -> Review:

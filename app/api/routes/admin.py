@@ -1,6 +1,7 @@
 """Administrator (pengelola) routes: verification and oversight."""
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,9 +13,24 @@ from app.models.booking import Booking
 from app.models.enums import UserRole
 from app.models.provider import ProviderProfile, Review
 from app.models.user import User
-from app.schemas.provider import ProviderProfileRead, ProviderSummary
+from app.schemas.provider import ProviderProfileRead
+from app.schemas.user import UserRead
 
 router = APIRouter(prefix="/admin", tags=["admin"])
+
+
+class AdminProviderRow(BaseModel):
+    """Provider entry for the admin dashboard, with moderation info."""
+
+    id: int
+    user_id: int
+    display_name: str
+    profession: str
+    is_verified: bool
+    owner_active: bool
+    service_count: int = 0
+    rating_avg: float = 0.0
+    rating_count: int = 0
 
 
 @router.get("/stats")
@@ -48,15 +64,29 @@ async def admin_stats(
     }
 
 
-@router.get("/providers", response_model=list[ProviderSummary])
+@router.get("/providers", response_model=list[AdminProviderRow])
 async def admin_list_providers(
     q: str | None = Query(default=None),
     limit: int = Query(default=100, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     _admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
-) -> list[ProviderSummary]:
-    return await provider_crud.list_profiles(db, q=q, limit=limit, offset=offset)
+) -> list[AdminProviderRow]:
+    profiles = await provider_crud.list_profiles(db, q=q, limit=limit, offset=offset)
+    return [
+        AdminProviderRow(
+            id=p.id,
+            user_id=p.user_id,
+            display_name=p.display_name,
+            profession=p.profession,
+            is_verified=p.is_verified,
+            owner_active=bool(p.user and p.user.is_active),
+            service_count=p.service_count,
+            rating_avg=p.rating_avg,
+            rating_count=p.rating_count,
+        )
+        for p in profiles
+    ]
 
 
 async def _set_verification(
@@ -90,3 +120,54 @@ async def admin_unverify_provider(
     db: AsyncSession = Depends(get_db),
 ) -> ProviderProfileRead:
     return await _set_verification(db, provider_id, False)
+
+
+# --- Moderation --------------------------------------------------------------
+
+async def _set_user_active(
+    db: AsyncSession, admin: User, user_id: int, active: bool
+) -> UserRead:
+    user = await user_crud.get_user_by_id(db, user_id)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Pengguna tidak ditemukan"
+        )
+    if user.role == UserRole.ADMIN.value:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Tidak bisa menonaktifkan akun pengelola",
+        )
+    return await user_crud.set_user_active(db, user, active)
+
+
+@router.post("/users/{user_id}/deactivate", response_model=UserRead)
+async def admin_deactivate_user(
+    user_id: int,
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+) -> UserRead:
+    return await _set_user_active(db, admin, user_id, False)
+
+
+@router.post("/users/{user_id}/activate", response_model=UserRead)
+async def admin_activate_user(
+    user_id: int,
+    admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+) -> UserRead:
+    return await _set_user_active(db, admin, user_id, True)
+
+
+@router.delete("/reviews/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def admin_delete_review(
+    review_id: int,
+    _admin: User = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+) -> Response:
+    review = await provider_crud.get_review(db, review_id)
+    if review is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Ulasan tidak ditemukan"
+        )
+    await provider_crud.delete_review(db, review)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
