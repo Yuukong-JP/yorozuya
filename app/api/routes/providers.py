@@ -1,6 +1,18 @@
 """Provider profile and service routes (penyedia & paket layanan)."""
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+import uuid
+from pathlib import Path
+
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    Query,
+    Response,
+    UploadFile,
+    status,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_active_user, get_current_provider
@@ -18,6 +30,19 @@ from app.schemas.review import ReviewCreate, ReviewRead
 from app.schemas.service import ServiceCreate, ServiceRead, ServiceUpdate
 
 router = APIRouter(prefix="/providers", tags=["providers"])
+
+# Foto profil di-upload ke folder static lokal lalu disajikan lewat StaticFiles
+# (mount "/" di app.main), sehingga URL "/uploads/<nama>" bisa diakses langsung.
+UPLOAD_SUBDIR = "uploads"
+STATIC_DIR = Path(__file__).resolve().parents[2] / "static"
+# content-type yang diizinkan -> ekstensi file yang dipakai saat menyimpan
+ALLOWED_IMAGE_EXT = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+    "image/gif": ".gif",
+}
+MAX_UPLOAD_BYTES = 5 * 1024 * 1024  # 5 MB
 
 
 # --- My profile (provider only) ----------------------------------------------
@@ -67,6 +92,41 @@ async def update_my_profile(
             detail="Profil penyedia belum dibuat",
         )
     return await provider_crud.update_profile(db, profile, data)
+
+
+@router.post("/me/photo")
+async def upload_my_photo(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_provider),
+) -> dict[str, str]:
+    """Terima file gambar dari perangkat, simpan ke storage lokal, lalu balikan
+    URL-nya. Endpoint sengaja stateless (tidak menulis ke profil) supaya bisa
+    dipakai saat membuat maupun mengedit profil — URL disimpan lewat
+    create/update profil seperti biasa."""
+    ext = ALLOWED_IMAGE_EXT.get((file.content_type or "").lower())
+    if ext is None:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail="Format gambar harus JPG, PNG, WebP, atau GIF",
+        )
+    # Baca maksimal MAX+1 byte: kalau melebihi batas, tolak tanpa memuat
+    # seluruh file besar ke memori.
+    contents = await file.read(MAX_UPLOAD_BYTES + 1)
+    if len(contents) > MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="Ukuran gambar maksimal 5 MB",
+        )
+    if not contents:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File gambar kosong",
+        )
+    upload_dir = STATIC_DIR / UPLOAD_SUBDIR
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    filename = f"{uuid.uuid4().hex}{ext}"
+    (upload_dir / filename).write_bytes(contents)
+    return {"url": f"/{UPLOAD_SUBDIR}/{filename}"}
 
 
 # --- My services (provider only) ---------------------------------------------

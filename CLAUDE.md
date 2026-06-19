@@ -25,7 +25,7 @@ uvicorn app.main:app --reload          # buka http://localhost:8000
 
 ## Perintah berguna
 ```bash
-pytest                                   # 53 tes, semua hijau
+pytest                                   # 57 tes, semua hijau
 python -m app.scripts.seed_demo          # isi data dummy (semua password: password123)
 python -m app.scripts.create_admin <user> <email> <pass>   # buat admin
 alembic upgrade head                     # migrasi (untuk PostgreSQL)
@@ -40,9 +40,10 @@ Cek sintaks JS setelah edit `index.html`: ekstrak isi `<script>` lalu `node --ch
 Auth + 3 peran (warga/penyedia/pengelola); profil & layanan penyedia; browse +
 filter kategori; landing page; ulasan & rating; verifikasi penyedia + dasbor
 pengelola (infografik); pemesanan (booking) dgn ringkasan + timeline status;
-moderasi (hapus ulasan, nonaktif akun); halaman Privasi & Ketentuan; foto
-penyedia (via URL); estimasi pendapatan; badge notifikasi; **chat in-app per
-pesanan**. Logo SVG monogram, font Plus Jakarta Sans, ikon kategori custom.
+moderasi (hapus ulasan, nonaktif akun); halaman Privasi & Ketentuan; **foto
+penyedia (upload dari perangkat** ke storage lokal, atau via URL); estimasi
+pendapatan; badge notifikasi; chat in-app per pesanan. Logo SVG monogram, font
+Plus Jakarta Sans, ikon kategori custom.
 
 ## Arsitektur singkat
 - `app/models/` ORM: user, provider (ProviderProfile/Service/Review), booking,
@@ -53,13 +54,23 @@ pesanan**. Logo SVG monogram, font Plus Jakarta Sans, ikon kategori custom.
   `settings.DATABASE_URL` (async) + import `app.models` agar semua tabel terdaftar.
 - Deploy: `Dockerfile` + `DEPLOYMENT.md` (panduan untuk tim teknis/Diskominfo).
 
+## Foto profil (upload)
+- Endpoint `POST /providers/me/photo` (penyedia, multipart `file`) menyimpan
+  gambar ke `app/static/uploads/` dan membalas `{"url": "/uploads/<uuid>.ext"}`.
+  Sengaja stateless — URL disimpan lewat create/update profil biasa, jadi jalan
+  saat buat maupun edit. Batas 5 MB; tipe: JPG/PNG/WebP/GIF.
+- File disajikan via `StaticFiles` mount "/" di `app/main.py` (akses `/uploads/…`).
+- Folder di-`.gitignore` (isi diabaikan, `.gitkeep` dipertahankan). **Deploy
+  Docker: mount volume ke `app/static/uploads` agar foto tak hilang saat redeploy.**
+- Belum ada: hapus file lama saat ganti foto (file lama jadi yatim), validasi
+  isi gambar sebenarnya (cuma cek content-type), resize/thumbnail.
+
 ## Yang BELUM dikerjakan (perlu keputusan/infra)
-1. **Upload foto dari perangkat** (sekarang via URL) — butuh storage file.
-2. **Notifikasi real-time/push** — butuh WebSocket/push service.
-3. **Kategori dinamis (admin bisa tambah) + sub-kategori** — refactor: kategori
+1. **Notifikasi real-time/push** — butuh WebSocket/push service.
+2. **Kategori dinamis (admin bisa tambah) + sub-kategori** — refactor: kategori
    kini enum (`ServiceCategory`) dgn ikon/warna baku per kategori; kalau dibuat
    bebas, kategori baru tak punya ikon/warna. Menunggu keputusan user.
-4. **Verifikasi email saat daftar** — butuh layanan email (dari Diskominfo).
+3. **Verifikasi email saat daftar** — butuh layanan email (dari Diskominfo).
 
 ## Konvensi
 - Jangan commit/push kecuali diminta; selalu ke branch di atas.

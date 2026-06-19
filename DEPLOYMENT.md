@@ -47,8 +47,14 @@ docker run -d -p 8000:8000 \
   -e DATABASE_URL="postgresql+asyncpg://kolega:rahasia@db-host:5432/kolega" \
   -e SECRET_KEY="$(openssl rand -hex 32)" \
   -e ENVIRONMENT=production \
+  -v kolega_uploads:/app/app/static/uploads \
   --name kolega kolega
 ```
+
+> **Foto profil di-upload disimpan sebagai file** di `app/static/uploads/`.
+> Pasang volume (`-v kolega_uploads:/app/app/static/uploads` di atas) agar foto
+> tidak hilang saat container di-redeploy. Pada platform PaaS, gunakan persistent
+> disk yang di-mount ke path tersebut.
 
 Saat container start, ia **otomatis menjalankan migrasi** (`alembic upgrade head`)
 lalu menyalakan server. Tidak perlu langkah migrasi manual.

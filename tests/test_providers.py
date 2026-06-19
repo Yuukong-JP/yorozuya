@@ -1,7 +1,11 @@
 """Tests for provider profiles and services."""
 
+from pathlib import Path
+
 import pytest
 from httpx import AsyncClient
+
+from app.api.routes.providers import STATIC_DIR, UPLOAD_SUBDIR
 
 AUTH = "/api/v1/auth"
 PROV = "/api/v1/providers"
@@ -91,6 +95,45 @@ async def test_update_my_profile(client, provider_token):
 
 async def test_unauthenticated_cannot_access_me(client):
     assert (await client.get(f"{PROV}/me")).status_code == 401
+
+
+# --- Photo upload ------------------------------------------------------------
+
+async def test_upload_photo_returns_url(client, provider_token):
+    files = {"file": ("foto.png", b"fakeimagebytes", "image/png")}
+    r = await client.post(
+        f"{PROV}/me/photo", files=files, headers=_h(provider_token)
+    )
+    assert r.status_code == 200, r.text
+    url = r.json()["url"]
+    assert url.startswith(f"/{UPLOAD_SUBDIR}/") and url.endswith(".png")
+    saved = STATIC_DIR / UPLOAD_SUBDIR / Path(url).name
+    try:
+        assert saved.read_bytes() == b"fakeimagebytes"
+    finally:
+        saved.unlink(missing_ok=True)
+
+
+async def test_upload_photo_rejects_non_image(client, provider_token):
+    files = {"file": ("virus.txt", b"hello", "text/plain")}
+    r = await client.post(
+        f"{PROV}/me/photo", files=files, headers=_h(provider_token)
+    )
+    assert r.status_code == 415
+
+
+async def test_upload_photo_requires_provider(client, customer_token):
+    files = {"file": ("foto.png", b"x", "image/png")}
+    r = await client.post(
+        f"{PROV}/me/photo", files=files, headers=_h(customer_token)
+    )
+    assert r.status_code == 403
+
+
+async def test_upload_photo_requires_auth(client):
+    files = {"file": ("foto.png", b"x", "image/png")}
+    r = await client.post(f"{PROV}/me/photo", files=files)
+    assert r.status_code == 401
 
 
 # --- Services ----------------------------------------------------------------

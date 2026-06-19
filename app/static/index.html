@@ -1277,11 +1277,65 @@
             <div class="field"><label>No. HP (opsional)</label><input id="pf-phone" value="${esc(p.phone || "")}" /></div>
             <div class="field"><label>Area layanan (opsional)</label><input id="pf-area" value="${esc(p.area || "")}" placeholder="Kel. Silaing Bawah" /></div>
           </div>
-          <div class="field"><label>URL foto profil (opsional)</label><input id="pf-photo" value="${esc(p.photo_url || "")}" placeholder="https://… (tempel link gambar)" /></div>
+          <div class="field"><label>Foto profil (opsional)</label>
+            <div style="display:flex;align-items:center;gap:14px">
+              <div id="pf-photo-prev" style="width:64px;height:64px;border-radius:16px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;color:#fff;${p.photo_url ? `background-image:url('${esc(p.photo_url)}');background-size:cover;background-position:center;color:transparent` : "background:linear-gradient(135deg,var(--accent),var(--accent-2))"}">${initial(p.display_name)}</div>
+              <div style="flex:1">
+                <input type="file" id="pf-photo-file" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none" onchange="uploadPhoto(event)" />
+                <button type="button" class="btn-mini" onclick="document.getElementById('pf-photo-file').click()">Unggah dari perangkat</button>
+                <button type="button" class="btn-mini" style="background:#9ca3af;margin-left:6px" onclick="clearPhoto()">Hapus</button>
+                <div id="pf-photo-msg" class="msg" style="margin-top:6px"></div>
+              </div>
+            </div>
+            <input id="pf-photo" type="hidden" value="${esc(p.photo_url || "")}" />
+            <details style="margin-top:8px"><summary style="cursor:pointer;font-size:12.5px;color:var(--muted)">atau tempel URL gambar</summary>
+              <input id="pf-photo-url" value="${esc(p.photo_url && !p.photo_url.startsWith("/uploads/") ? p.photo_url : "")}" placeholder="https://…" oninput="setPhotoUrl(this.value)" style="margin-top:6px" />
+            </details>
+          </div>
           <div class="field"><label>Tentang (opsional)</label><textarea id="pf-bio" placeholder="Ceritakan pengalamanmu…">${esc(p.bio || "")}</textarea></div>
           <button class="btn" type="submit">${existing ? "Simpan perubahan" : "Buat profil"}</button>
           <div id="pf-msg" class="msg"></div>
         </form></div>`;
+    }
+    // Tampilkan foto pada kotak preview & simpan URL-nya di input tersembunyi
+    // yang dibaca saveProfile. Sumber foto bisa hasil upload atau URL tempelan.
+    function setPhotoPreview(url) {
+      const el = document.getElementById("pf-photo-prev");
+      document.getElementById("pf-photo").value = url || "";
+      if (url) {
+        el.style.backgroundImage = `url('${url}')`;
+        el.style.backgroundSize = "cover";
+        el.style.backgroundPosition = "center";
+        el.style.color = "transparent";
+      } else {
+        el.style.backgroundImage = "none";
+        el.style.color = "#fff";
+      }
+    }
+    async function uploadPhoto(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const msg = document.getElementById("pf-photo-msg");
+      msg.className = "msg"; msg.textContent = "Mengunggah…";
+      const fd = new FormData(); fd.append("file", file);
+      // FormData: jangan set Content-Type manual agar boundary multipart benar.
+      const res = await fetch(API + "/providers/me/photo", { method: "POST", headers: authH(), body: fd });
+      let data = null; try { data = await res.json(); } catch (_) {}
+      if (res.ok) {
+        setPhotoPreview(data.url);
+        const u = document.getElementById("pf-photo-url"); if (u) u.value = "";
+        setMsg("pf-photo-msg", "Foto terunggah", true);
+      } else {
+        setMsg("pf-photo-msg", errText(data) || "Gagal mengunggah foto", false);
+      }
+      e.target.value = "";
+    }
+    function setPhotoUrl(v) { setPhotoPreview(v.trim()); }
+    function clearPhoto() {
+      setPhotoPreview("");
+      const u = document.getElementById("pf-photo-url"); if (u) u.value = "";
+      const f = document.getElementById("pf-photo-file"); if (f) f.value = "";
+      const m = document.getElementById("pf-photo-msg"); if (m) { m.textContent = ""; m.className = "msg"; }
     }
     async function saveProfile(e, isEdit) {
       e.preventDefault();

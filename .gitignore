@@ -24,6 +24,10 @@ ENV/
 *.db
 *.sqlite3
 
+# Foto profil yang di-upload pengguna (folder tetap ada, isinya diabaikan)
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+
 # Tooling caches
 .pytest_cache/
 .mypy_cache/
