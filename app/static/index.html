@@ -4,18 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>KOLEGA — Cari jasa tepercaya di kotamu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 56"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="%234f46e5"/><stop offset="1" stop-color="%237c3aed"/></linearGradient></defs><rect x="4" y="4" width="48" height="48" rx="14" fill="url(%23g)"/><g stroke="%23fff" stroke-width="5.5" fill="none" stroke-linecap="square"><path d="M21 17 V39"/><path d="M21 28 L37 17"/><path d="M21 28 L37 39"/></g></svg>' />
   <style>
     :root {
-      --bg: #f7f7f8; --card: #fff; --ink: #18181b; --ink2: #3f3f46; --muted: #71717a; --faint: #a1a1aa;
-      --line: #ececef; --line-soft: #f4f4f5; --accent: #4f46e5; --accent-2: #7c3aed; --accent-weak: #eef0fe;
+      --bg: #f6f6fb; --card: #fff; --ink: #15131c; --ink2: #3f3a4a; --muted: #6f6a7d; --faint: #a3a0ae;
+      --line: #ececf2; --line-soft: #f4f3f8; --accent: #5b4be3; --accent-2: #8b5cf6; --accent-weak: #eeecfe;
       --ok: #15803d; --ok-bg: #ecfdf3; --err: #dc2626;
-      --shadow: 0 1px 2px rgba(24,24,27,.04), 0 12px 28px rgba(24,24,27,.06);
+      --font: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+      --shadow: 0 1px 2px rgba(20,16,40,.04), 0 10px 24px rgba(20,16,40,.06);
+      --shadow-lg: 0 4px 12px rgba(20,16,40,.06), 0 24px 48px rgba(20,16,40,.10);
+      --shadow-accent: 0 8px 22px rgba(91,75,227,.28);
     }
     * { box-sizing: border-box; }
-    body { margin: 0; background: var(--bg); color: var(--ink);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
-      -webkit-font-smoothing: antialiased; }
+    body { margin: 0; color: var(--ink); font-family: var(--font);
+      background:
+        radial-gradient(900px 500px at 88% -8%, rgba(139,92,246,.10), transparent 60%),
+        radial-gradient(800px 460px at -5% 0%, rgba(91,75,227,.08), transparent 55%),
+        var(--bg);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
     button { font-family: inherit; cursor: pointer; }
     .hidden { display: none !important; }
     a { color: inherit; }
@@ -261,6 +271,57 @@
     .astat span { color: var(--muted); font-size: 12px; }
     .row2 { display: flex; gap: 12px; } .row2 > .field { flex: 1; } .field { margin-bottom: 2px; }
     .pill-cat { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--ink2); background: var(--line-soft); padding: 2px 8px; border-radius: 999px; }
+
+    /* ===== Premium polish ===== */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    @keyframes floaty { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    @keyframes pop { 0% { transform: scale(.96); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); }
+    .reveal.in { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) { .reveal, .gig, .hero-illu svg { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; } }
+
+    /* Topbar — refined glass */
+    .topbar { background: rgba(246,246,251,.72); backdrop-filter: saturate(180%) blur(16px); -webkit-backdrop-filter: saturate(180%) blur(16px); border-bottom: 1px solid rgba(20,16,40,.06); }
+    .brand .name { background: linear-gradient(120deg, var(--ink), #4a4458); -webkit-background-clip: text; background-clip: text; }
+    .navlink { transition: background .15s, color .15s; }
+    .navlink.active { background: linear-gradient(120deg, var(--accent), var(--accent-2)); box-shadow: var(--shadow-accent); }
+
+    /* Hero — depth + motion */
+    .lhero { position: relative; overflow: hidden; }
+    .lhero::before { content: ""; position: absolute; inset: 0; background:
+        radial-gradient(600px 300px at 20% 12%, rgba(91,75,227,.10), transparent 60%),
+        radial-gradient(600px 320px at 82% 8%, rgba(139,92,246,.12), transparent 60%); pointer-events: none; }
+    .lhero .wrap { position: relative; }
+    .hero-illu svg { animation: floaty 7s ease-in-out infinite; }
+    .lhero h1 { letter-spacing: -0.04em; }
+
+    /* Buttons — tactile depth */
+    .btn, .btn-lg { transition: transform .14s cubic-bezier(.2,.7,.2,1), box-shadow .2s, opacity .2s; }
+    .btn:active, .btn-lg:active { transform: translateY(1px); }
+    .btn-primary, .searchbar button, .btn:not(.dark) { box-shadow: var(--shadow-accent); }
+    .btn-primary:hover, .btn-lg.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(91,75,227,.36); opacity: 1; }
+    .btn-outline:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .btn-mini { transition: transform .14s, box-shadow .2s; box-shadow: 0 4px 12px rgba(91,75,227,.22); }
+    .btn-mini:hover { transform: translateY(-1px); }
+
+    /* Cards — softer, deeper, animated in */
+    .gig { animation: fadeUp .5s both; box-shadow: 0 1px 2px rgba(20,16,40,.04); transition: transform .18s cubic-bezier(.2,.7,.2,1), box-shadow .2s, border-color .2s; }
+    .gig:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: #e4e1f2; }
+    .gig .cover { position: relative; }
+    .gig .cover::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(0,0,0,.06)); }
+    .cat-tile, .panel, .astat, .svc, .rev-form { transition: transform .18s cubic-bezier(.2,.7,.2,1), box-shadow .2s, border-color .2s; }
+    .cat-tile:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .chip { transition: transform .14s, border-color .15s, background .15s, color .15s; }
+    .chip:hover { transform: translateY(-1px); }
+    .chip.active { background: linear-gradient(120deg, var(--accent), var(--accent-2)); border-color: transparent; box-shadow: var(--shadow-accent); }
+
+    /* Section headings a touch grander */
+    .section h2, .hero h1 { font-weight: 800; }
+    .step .num { box-shadow: 0 6px 16px rgba(91,75,227,.18); }
+    .band { background: linear-gradient(135deg, #1c1830, #2a2342); box-shadow: var(--shadow-lg); }
+    .modal { animation: pop .22s cubic-bezier(.2,.7,.2,1) both; }
+    .searchbar { transition: box-shadow .2s, border-color .2s, transform .2s; }
+    .searchbar:focus-within { transform: translateY(-1px); }
   </style>
 </head>
 <body>
@@ -599,16 +660,16 @@
       title.textContent = activeCat ? catMeta(activeCat).label : (q ? `Hasil untuk “${q}”` : "Penyedia terbaru");
       count.textContent = data ? `${data.length} penyedia` : "";
       if (!data || data.length === 0) { list.innerHTML = `<div class="empty">Belum ada penyedia yang cocok. Coba kata kunci atau kategori lain.</div>`; return; }
-      list.innerHTML = data.map(gigCard).join("");
+      list.innerHTML = data.map((p, i) => gigCard(p, i)).join("");
     }
-    function gigCard(p) {
+    function gigCard(p, i = 0) {
       const cat = p.primary_category || "lainnya";
       const m = catMeta(cat);
       const price = p.starting_price != null
         ? `<div class="price"><small>Mulai dari</small><b>${rp(p.starting_price)}</b></div>`
         : `<div class="price"><small>&nbsp;</small><b style="color:var(--faint);font-size:13px">Belum ada layanan</b></div>`;
       const verif = p.is_verified ? `<span class="verif" title="Terverifikasi">${VERIF_ICON}</span>` : "";
-      return `<div class="gig" onclick="openProvider(${p.id})">
+      return `<div class="gig" style="animation-delay:${(i % 12) * 45}ms" onclick="openProvider(${p.id})">
         <div class="cover" style="background:${grad(cat)}">
           <span class="catpill">${m.emo} ${m.label}</span><span class="emo">${m.emo}</span>
         </div>
@@ -990,7 +1051,16 @@
     }
     async function deleteService(id) { await api(`/providers/me/services/${id}`, { method: "DELETE" }); showDashboard(); }
 
-    (async function init() { renderChips(); renderLandingCats(); await fetchMe(); navTo("landing"); })();
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); revealObserver.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    function applyReveal() {
+      document.querySelectorAll(".lhero .wrap, #view-landing .section").forEach((el) => {
+        if (!el.classList.contains("reveal")) { el.classList.add("reveal"); revealObserver.observe(el); }
+      });
+    }
+
+    (async function init() { renderChips(); renderLandingCats(); applyReveal(); await fetchMe(); navTo("landing"); })();
   </script>
 </body>
 </html>
