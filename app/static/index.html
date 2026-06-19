@@ -293,6 +293,19 @@
     .rev-highlight span { font-size: 12.5px; color: rgba(255,255,255,.75); } .rev-highlight b { font-size: 22px; font-weight: 800; }
     .notif { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--err); color: #fff; font-size: 11px; font-weight: 700; margin-left: 2px; }
     .navlink.active .notif { background: #fff; color: var(--accent); }
+    /* Chat */
+    .chat-box { max-height: 340px; overflow-y: auto; padding: 6px 2px; display: flex; flex-direction: column; gap: 8px; }
+    .bubble { max-width: 78%; align-self: flex-start; }
+    .bubble.me { align-self: flex-end; }
+    .bub-meta { font-size: 10.5px; color: var(--faint); margin: 0 4px 3px; }
+    .bubble.me .bub-meta { text-align: right; }
+    .bub-body { background: var(--line-soft); padding: 9px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.45; color: var(--ink); }
+    .bubble.me .bub-body { background: linear-gradient(120deg, var(--accent), var(--accent-2)); color: #fff; }
+    .chat-empty { text-align: center; color: var(--faint); font-size: 13px; padding: 30px 0; }
+    .chat-input { display: flex; gap: 8px; margin-top: 14px; }
+    .chat-input input { flex: 1; padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px; font-family: inherit; font-size: 14px; outline: none; }
+    .chat-input input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(91,75,227,.12); }
+    .chat-input .btn-mini { padding: 0 16px; }
     .astats { display: flex; gap: 12px; flex-wrap: wrap; margin: 6px 0 8px; }
     .astat { flex: 1; min-width: 92px; border: 1px solid var(--line); border-radius: 13px; padding: 14px; text-align: center; }
     .astat b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
@@ -815,6 +828,36 @@
       try { return new Date(s).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }); }
       catch (_) { return ""; }
     }
+    function fmtTime(s) {
+      try { return new Date(s).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); }
+      catch (_) { return ""; }
+    }
+    async function openChat(bookingId) {
+      const { ok, data } = await api(`/bookings/${bookingId}/messages`);
+      if (!ok) return;
+      const bubbles = (data || []).length
+        ? data.map((m) => `<div class="bubble ${currentUser && m.sender_id === currentUser.id ? "me" : ""}">
+            <div class="bub-meta">${esc(m.sender_username)} · ${fmtTime(m.created_at)}</div>
+            <div class="bub-body">${esc(m.body)}</div></div>`).join("")
+        : `<div class="chat-empty">Belum ada pesan. Mulai obrolan 👋</div>`;
+      document.getElementById("modal-box").innerHTML = `
+        <div class="modal-head"><h3>Obrolan pesanan</h3><button class="modal-x" onclick="closeModal()">×</button></div>
+        <div class="chat-box" id="chat-box">${bubbles}</div>
+        <div class="chat-input">
+          <input id="chat-text" placeholder="Tulis pesan…" maxlength="2000" onkeydown="if(event.key==='Enter')sendChat(${bookingId})" />
+          <button class="btn-mini" onclick="sendChat(${bookingId})">Kirim</button>
+        </div>`;
+      document.getElementById("modal").classList.remove("hidden");
+      const box = document.getElementById("chat-box"); box.scrollTop = box.scrollHeight;
+      const inp = document.getElementById("chat-text"); if (inp) inp.focus();
+    }
+    async function sendChat(bookingId) {
+      const inp = document.getElementById("chat-text");
+      const body = inp.value.trim();
+      if (!body) return;
+      const { ok } = await api(`/bookings/${bookingId}/messages`, { method: "POST", body: JSON.stringify({ body }) });
+      if (ok) openChat(bookingId);
+    }
     function setReviewStar(n) {
       selectedStar = n;
       document.querySelectorAll("#star-input button").forEach((b) => b.classList.toggle("on", Number(b.dataset.v) <= n));
@@ -1135,7 +1178,7 @@
           ${bookBadge(b.status)}</div>
         ${b.note ? `<div class="oi-note">“${esc(b.note)}”</div>` : ""}
         ${statusTimeline(b.status)}
-        ${b.status === "pending" ? `<div class="oi-act"><button class="del" onclick="cancelBooking(${b.id})">Batalkan pesanan</button></div>` : ""}
+        <div class="oi-act"><button class="del" onclick="openChat(${b.id})">💬 Chat</button>${b.status === "pending" ? `<button class="del" onclick="cancelBooking(${b.id})">Batalkan pesanan</button>` : ""}</div>
       </div>`;
     }
     async function cancelBooking(id) { await api(`/bookings/${id}/cancel`, { method: "POST" }); showDashboard(); }
@@ -1197,7 +1240,7 @@
       return `<div class="svc-row"><div><div class="t">${esc(b.customer_username)} ${bookBadge(b.status)}</div>
         <div class="s">${b.service_title ? esc(b.service_title) + " · " : ""}${b.preferred_time ? "🕑 " + esc(b.preferred_time) : "tanpa waktu khusus"}</div>
         ${b.note ? `<div class="s" style="margin-top:4px">“${esc(b.note)}”</div>` : ""}</div>
-        <div class="row-actions">${actions}</div></div>`;
+        <div class="row-actions"><button class="del" onclick="openChat(${b.id})">💬 Chat</button>${actions}</div></div>`;
     }
     async function setBookStatus(id, st) { await api(`/bookings/${id}/status`, { method: "POST", body: JSON.stringify({ status: st }) }); showDashboard(); updateNotif(); }
     function svcRow(s) {

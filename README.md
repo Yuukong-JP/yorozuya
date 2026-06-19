@@ -146,6 +146,8 @@ Base prefix: `/api/v1`
 | GET    | `/api/v1/bookings/incoming`       | provider | Bookings addressed to me             |
 | POST   | `/api/v1/bookings/{id}/status`    | provider | Accept / reject / complete           |
 | POST   | `/api/v1/bookings/{id}/cancel`    | user     | Cancel my pending booking            |
+| GET    | `/api/v1/bookings/{id}/messages`  | party    | Chat thread for a booking            |
+| POST   | `/api/v1/bookings/{id}/messages`  | party    | Send a chat message                  |
 
 **Admin (pengelola)**
 

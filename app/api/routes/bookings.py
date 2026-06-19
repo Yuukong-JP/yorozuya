@@ -6,10 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_active_user, get_current_provider
 from app.core.database import get_db
 from app.crud import booking as booking_crud
+from app.crud import message as message_crud
 from app.crud import provider as provider_crud
+from app.models.booking import Booking
 from app.models.enums import BookingStatus
 from app.models.user import User
 from app.schemas.booking import BookingCreate, BookingRead, BookingStatusUpdate
+from app.schemas.message import MessageCreate, MessageRead
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
@@ -111,3 +114,52 @@ async def cancel_booking(
             detail="Hanya pesanan yang masih menunggu bisa dibatalkan",
         )
     return await booking_crud.set_status(db, booking, BookingStatus.CANCELLED)
+
+
+# --- Chat (obrolan pesanan) --------------------------------------------------
+
+async def _participant_booking(
+    db: AsyncSession, booking_id: int, user: User
+) -> Booking:
+    """Return the booking only if the user is its customer or the provider."""
+    booking = await booking_crud.get_booking(db, booking_id)
+    if booking is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Pesanan tidak ditemukan"
+        )
+    if booking.customer_id == user.id:
+        return booking
+    profile = await provider_crud.get_profile_by_user(db, user.id)
+    if profile is not None and profile.id == booking.provider_id:
+        return booking
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Hanya pihak terkait pesanan yang dapat mengakses obrolan",
+    )
+
+
+@router.get("/{booking_id}/messages", response_model=list[MessageRead])
+async def list_booking_messages(
+    booking_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[MessageRead]:
+    await _participant_booking(db, booking_id, current_user)
+    return await message_crud.list_messages(db, booking_id)
+
+
+@router.post(
+    "/{booking_id}/messages",
+    response_model=MessageRead,
+    status_code=status.HTTP_201_CREATED,
+)
+async def post_booking_message(
+    booking_id: int,
+    data: MessageCreate,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
+) -> MessageRead:
+    await _participant_booking(db, booking_id, current_user)
+    return await message_crud.create_message(
+        db, booking_id, current_user.id, data.body
+    )
