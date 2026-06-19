@@ -216,6 +216,27 @@ Per the proposal's mandatory (*Wajib*) tier-1 features:
 - [x] Ulasan & penilaian
 - [x] Dasbor pengelola
 
+## Demo data (akun dummy)
+
+To explore every dashboard quickly, seed demo accounts and data:
+
+```bash
+python -m app.scripts.seed_demo
+```
+
+All accounts use the password `password123`:
+
+| Role                      | Username     | What you'll see                              |
+| ------------------------- | ------------ | -------------------------------------------- |
+| Pengelola (admin)         | `pengelola`  | Verify providers + platform stats            |
+| Penyedia (verified)       | `budi_las`   | Services, reviews, 2 incoming bookings       |
+| Penyedia (verified)       | `pak_anton`  | Tutor profile with a review                  |
+| Penyedia (unverified)     | `siti_jahit` | Waiting for admin verification               |
+| Warga                     | `warga`      | 2 placed bookings to track                   |
+| Warga                     | `warga2`     | 1 accepted booking                           |
+
+Re-running is refused if demo data exists — delete `kolega.db` to reseed.
+
 ## Provisioning an admin (pengelola)
 
 Admin accounts can't be created through the public API. Create one locally with:
