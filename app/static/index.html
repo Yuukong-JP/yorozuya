@@ -277,7 +277,7 @@
     <nav class="nav">
       <button class="navlink active" data-nav="landing" onclick="navTo('landing')">Beranda</button>
       <button class="navlink" data-nav="browse" onclick="navTo('browse')">Cari Jasa</button>
-      <button class="navlink" data-nav="account" onclick="navTo('account')">Akun</button>
+      <button class="navlink hidden" id="nav-account" data-nav="account" onclick="navTo('account')">Akun</button>
     </nav>
     <div class="userbox" id="userbox"></div>
   </header>
@@ -512,11 +512,14 @@
     }
     function refreshUserbox() {
       const box = document.getElementById("userbox");
+      const navAccount = document.getElementById("nav-account");
       if (currentUser) {
+        navAccount.classList.remove("hidden");
         box.innerHTML = `<span class="uname">${esc(currentUser.username)}</span>
           <span class="role-chip">${ROLE_LABELS[currentUser.role] || currentUser.role}</span>
           <button class="link-btn" onclick="logout()">Keluar</button>`;
       } else {
+        navAccount.classList.add("hidden");
         box.innerHTML = `<button class="ghost" onclick="navTo('account')">Masuk</button>`;
       }
     }
