@@ -10,8 +10,8 @@ from app.core.database import get_db
 from app.crud import provider as provider_crud
 from app.crud import user as user_crud
 from app.models.booking import Booking
-from app.models.enums import UserRole
-from app.models.provider import ProviderProfile, Review
+from app.models.enums import BookingStatus, UserRole
+from app.models.provider import ProviderProfile, Review, Service
 from app.models.user import User
 from app.schemas.provider import ProviderProfileRead
 from app.schemas.user import UserRead
@@ -37,7 +37,7 @@ class AdminProviderRow(BaseModel):
 async def admin_stats(
     _admin: User = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
-) -> dict[str, int]:
+) -> dict:
     async def _count(stmt) -> int:
         return int((await db.execute(stmt)).scalar_one())
 
@@ -54,6 +54,25 @@ async def admin_stats(
     )
     reviews = await _count(select(func.count()).select_from(Review))
     bookings = await _count(select(func.count()).select_from(Booking))
+
+    # Breakdown: bookings per status (fill zeros for missing statuses).
+    by_status = {s.value: 0 for s in BookingStatus}
+    rows = await db.execute(
+        select(Booking.status, func.count()).group_by(Booking.status)
+    )
+    for st, c in rows.all():
+        by_status[st] = c
+
+    # Breakdown: active services per category.
+    by_category: dict[str, int] = {}
+    rows = await db.execute(
+        select(Service.category, func.count())
+        .where(Service.is_active.is_(True))
+        .group_by(Service.category)
+    )
+    for cat, c in rows.all():
+        by_category[cat] = c
+
     return {
         "providers": providers,
         "verified_providers": verified,
@@ -61,6 +80,8 @@ async def admin_stats(
         "customers": customers,
         "reviews": reviews,
         "bookings": bookings,
+        "bookings_by_status": by_status,
+        "services_by_category": by_category,
     }
 
 

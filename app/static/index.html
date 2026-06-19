@@ -335,13 +335,24 @@
     .cat-tile .ic .tile-ic { width: 24px; height: 24px; color: #fff; }
     .mini-ic { width: 13px; height: 13px; vertical-align: -2px; }
 
-    /* Faint decorative icons behind the hero ("ramai" tapi halus) */
-    .hero-deco { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-    .hero-deco svg { position: absolute; color: var(--accent); opacity: .05; }
-    .hero-deco .d1 { width: 120px; height: 120px; top: 12%; left: 6%; transform: rotate(-12deg); }
-    .hero-deco .d2 { width: 86px; height: 86px; top: 20%; right: 9%; transform: rotate(10deg); color: var(--accent-2); }
-    .hero-deco .d3 { width: 70px; height: 70px; bottom: 14%; left: 14%; transform: rotate(8deg); color: var(--accent-2); }
-    .hero-deco .d4 { width: 100px; height: 100px; bottom: 8%; right: 12%; transform: rotate(-8deg); }
+    /* Dashboard infographics */
+    .chart-card { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; background: #fff; }
+    .chart-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+    .bc-row { display: grid; grid-template-columns: 120px 1fr 34px; align-items: center; gap: 10px; margin-bottom: 9px; }
+    .bc-lab { font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+    .bc-track { height: 10px; background: var(--line-soft); border-radius: 999px; overflow: hidden; }
+    .bc-fill { display: block; height: 100%; border-radius: 999px; transition: width .6s cubic-bezier(.2,.7,.2,1); }
+    .bc-val { font-size: 12.5px; font-weight: 700; text-align: right; }
+    .charts-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 640px) { .charts-2 { grid-template-columns: 1fr; } .bc-row { grid-template-columns: 100px 1fr 30px; } }
+
+    /* Custom service request box */
+    .custom-req { display: flex; align-items: center; gap: 16px; justify-content: space-between;
+      margin-top: 18px; padding: 18px 20px; border-radius: 16px; border: 1px dashed #d6d2e6;
+      background: linear-gradient(135deg, var(--accent-weak), #faf9ff); }
+    .cr-text b { display: block; font-size: 15px; }
+    .cr-text span { font-size: 13px; color: var(--muted); }
+    @media (max-width: 560px) { .custom-req { flex-direction: column; align-items: stretch; text-align: center; } }
   </style>
 </head>
 <body>
@@ -371,12 +382,6 @@
   <!-- LANDING -->
   <section id="view-landing" class="view">
     <div class="lhero">
-      <div class="hero-deco">
-        <svg class="d1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.1" y2="15.9"/><line x1="14.5" y1="14.5" x2="20" y2="20"/><line x1="8.1" y1="8.1" x2="12" y2="12"/></svg>
-        <svg class="d2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7.5 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3.5z"/><circle cx="12" cy="13" r="3.5"/></svg>
-        <svg class="d3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0 5.06 5.06l-7.6 7.6a2.12 2.12 0 0 1-3-3l7.6-7.6a4 4 0 0 0 5.06 5.06"/><path d="M14.7 6.3 18 3"/></svg>
-        <svg class="d4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v13"/><path d="M3 18V5.5A1.5 1.5 0 0 1 4.5 4H10a2 2 0 0 1 2 2 2 2 0 0 1 2-2h5.5A1.5 1.5 0 0 1 21 5.5V18a1 1 0 0 1-1 1h-6.5a1.5 1.5 0 0 0-3 0H4a1 1 0 0 1-1-1z"/></svg>
-      </div>
       <div class="wrap">
         <h1>Cari jasa tepercaya di <span class="grad">kotamu</span>, semudah ngobrol</h1>
         <p>KOLEGA menghubungkan kamu dengan tukang, penjahit, guru les, dan ahli lain di sekitarmu — langsung, tanpa perantara.</p>
@@ -569,6 +574,18 @@
       cancelled: { label: "Dibatalkan", cls: "off" },
     };
     const bookBadge = (s) => { const m = BOOK_STATUS[s] || BOOK_STATUS.pending; return `<span class="badge ${m.cls}">${m.label}</span>`; };
+    const STATUS_COLOR = { pending: "#b2aec0", accepted: "#15803d", rejected: "#dc2626", completed: "#5b4be3", cancelled: "#cbc8d4" };
+    function barChart(title, rows) {
+      const max = Math.max(1, ...rows.map((r) => r.value));
+      const body = rows.map((r) => `<div class="bc-row">
+        <span class="bc-lab">${r.icon || ""}${r.label}</span>
+        <span class="bc-track"><span class="bc-fill" style="width:${Math.round((r.value / max) * 100)}%;background:${r.color || "var(--accent)"}"></span></span>
+        <span class="bc-val">${r.value}</span></div>`).join("");
+      return `<div class="chart-card"><div class="chart-title">${title}</div>${body || '<div class="empty" style="padding:8px 0">Belum ada data.</div>'}</div>`;
+    }
+    function miniStats(items) {
+      return `<div class="astats">${items.map((i) => `<div class="astat"><b>${i.n}</b><span>${i.label}</span></div>`).join("")}</div>`;
+    }
     const LEGAL = {
       privacy: {
         title: "Kebijakan Privasi",
@@ -789,17 +806,19 @@
       }
       const svc = serviceId ? (p.services || []).find((s) => s.id === serviceId) : null;
       document.getElementById("modal-box").innerHTML = `
-        <div class="modal-head"><h3>Pesan jasa</h3><button class="modal-x" onclick="closeModal()">×</button></div>
+        <div class="modal-head"><h3>${svc ? "Pesan jasa" : "Permintaan layanan khusus"}</h3><button class="modal-x" onclick="closeModal()">×</button></div>
         <div class="book-prov">
           <div class="ava" style="background:${grad((svc && svc.category) || (p.services && p.services[0] && p.services[0].category) || "lainnya")}">${initial(p.display_name)}</div>
           <div><div class="book-name">${esc(p.display_name)}</div><div class="sub">${esc(p.profession)}</div></div>
         </div>
-        ${svc ? `<div class="book-svc">${esc(svc.title)} · <b>${rp(svc.price)}</b> <span style="color:var(--faint)">${esc(svc.price_unit)}</span></div>` : ""}
+        ${svc
+          ? `<div class="book-svc">${esc(svc.title)} · <b>${rp(svc.price)}</b> <span style="color:var(--faint)">${esc(svc.price_unit)}</span></div>`
+          : `<div class="book-svc">Ceritakan pekerjaan yang kamu butuhkan di luar daftar layanan. Penyedia akan memberi penawaran harga.</div>`}
         <input type="hidden" id="book-service" value="${serviceId || ""}" />
         <label>Waktu yang diinginkan (opsional)</label>
         <input id="book-time" placeholder="mis. Sabtu 21 Jun, pagi" maxlength="120" />
-        <label>Catatan untuk penyedia (opsional)</label>
-        <textarea id="book-note" placeholder="Jelaskan kebutuhanmu…" maxlength="1000"></textarea>
+        <label>${svc ? "Catatan untuk penyedia (opsional)" : "Layanan yang kamu butuhkan"}</label>
+        <textarea id="book-note" placeholder="${svc ? "Jelaskan kebutuhanmu…" : "mis. Perbaikan atap bocor, pasang stop kontak baru…"}" maxlength="1000"></textarea>
         <button class="btn" style="margin-top:16px" onclick="submitBooking(${p.id})">Kirim pesanan</button>
         <div id="book-msg" class="msg"></div>`;
       document.getElementById("modal").classList.remove("hidden");
@@ -854,9 +873,12 @@
             ${p.headline ? `<p class="bio" style="font-weight:500">${esc(p.headline)}</p>` : ""}
             ${p.bio ? `<p class="bio">${esc(p.bio)}</p>` : ""}
             ${p.phone ? `<div class="contact">📞 ${esc(p.phone)}</div>` : ""}
-            <div style="margin-top:16px"><button class="btn-lg btn-primary" style="padding:12px 22px;font-size:14px" onclick="openBooking(null)">📅 Pesan / Booking jasa</button></div>
             <div class="section-title">Layanan (${services.length})</div>
             ${svc}
+            <div class="custom-req">
+              <div class="cr-text"><b>Butuh layanan lain?</b><span>Ajukan permintaan khusus di luar daftar — penyedia akan beri penawaran.</span></div>
+              <button class="btn-lg btn-primary" style="padding:11px 20px;font-size:14px;white-space:nowrap" onclick="openBooking(null)">Ajukan permintaan</button>
+            </div>
             ${reviewsBlock(p)}
           </div>
         </div>`;
@@ -920,7 +942,19 @@
       const { data: stats } = await api("/admin/stats");
       const { data: providers } = await api("/admin/providers");
       const s = stats || {};
-      const statCard = (n, l) => `<div class="astat"><b>${n ?? 0}</b><span>${l}</span></div>`;
+      const bs = s.bookings_by_status || {};
+      const sc = s.services_by_category || {};
+      const bookingsChart = barChart("Pesanan per status", ["pending", "accepted", "completed", "rejected", "cancelled"].map((k) => ({
+        label: (BOOK_STATUS[k] || {}).label || k, value: bs[k] || 0, color: STATUS_COLOR[k],
+      })));
+      const verifChart = barChart("Status verifikasi penyedia", [
+        { label: "Terverifikasi", value: s.verified_providers || 0, color: "#15803d" },
+        { label: "Menunggu", value: s.pending_providers || 0, color: "#b2aec0" },
+      ]);
+      const catRows = Object.entries(sc).map(([k, v]) => ({
+        label: catMeta(k).label, value: v, color: catMeta(k).g[0], icon: catIcon(k, "mini-ic"),
+      })).sort((a, b) => b.value - a.value);
+      const catChart = barChart("Layanan per kategori", catRows);
       const rows = (providers || []).map((p) => {
         const badge = p.is_verified
           ? `<span class="badge on">${VERIF_ICON}Terverifikasi</span>`
@@ -939,10 +973,18 @@
       dash.innerHTML = `<div class="panel"><div class="detail-body" style="padding-top:24px">
         <div class="dash-head"><div class="ava">${initial(currentUser.username)}</div>
           <div><h2>Dasbor Pengelola</h2><div class="sub">${esc(currentUser.username)} · pengelola KOLEGA</div></div></div>
-        <div class="astats">
-          ${statCard(s.providers, "penyedia")}${statCard(s.verified_providers, "terverifikasi")}
-          ${statCard(s.pending_providers, "menunggu")}${statCard(s.customers, "warga")}${statCard(s.reviews, "ulasan")}
-        </div>
+        <div class="section-title">Ringkasan platform</div>
+        ${miniStats([
+          { n: s.providers ?? 0, label: "penyedia" },
+          { n: s.verified_providers ?? 0, label: "terverifikasi" },
+          { n: s.pending_providers ?? 0, label: "menunggu" },
+          { n: s.customers ?? 0, label: "warga" },
+          { n: s.bookings ?? 0, label: "pesanan" },
+          { n: s.reviews ?? 0, label: "ulasan" },
+        ])}
+        <div class="section-title">Infografik</div>
+        <div class="charts-2">${bookingsChart}${verifChart}</div>
+        ${catChart}
         <div class="section-title">Penyedia — verifikasi identitas</div>
         ${rows}
       </div></div>`;
@@ -995,6 +1037,19 @@
       const bookingList = nb
         ? incoming.map(provBookingRow).join("")
         : `<div class="empty" style="padding:24px 0">Belum ada pesanan masuk.</div>`;
+      const sc = { pending: 0, accepted: 0, rejected: 0, completed: 0, cancelled: 0 };
+      (incoming || []).forEach((b) => { sc[b.status] = (sc[b.status] || 0) + 1; });
+      const provStats = miniStats([
+        { n: nb, label: "total pesanan" },
+        { n: sc.pending, label: "menunggu" },
+        { n: sc.accepted, label: "diterima" },
+        { n: sc.completed, label: "selesai" },
+        { n: services.length, label: "layanan" },
+        { n: `⭐ ${Number(profile.rating_avg || 0).toFixed(1)}`, label: `${profile.rating_count || 0} ulasan` },
+      ]);
+      const provChart = barChart("Pesanan per status", ["pending", "accepted", "completed", "rejected", "cancelled"].map((k) => ({
+        label: (BOOK_STATUS[k] || {}).label || k, value: sc[k] || 0, color: STATUS_COLOR[k],
+      })));
       const cat = (services[0] && services[0].category) || "lainnya";
       const ver = profile.is_verified ? `<span class="badge on">${VERIF_ICON}Terverifikasi</span>` : `<span class="badge off">Menunggu verifikasi</span>`;
       dash.innerHTML = `<div class="panel">
@@ -1007,6 +1062,9 @@
             <button class="ghost" style="margin-left:auto" onclick="renderProfileForm(document.getElementById('dashboard'), CURRENT_PROFILE)">Edit profil</button>
           </div>
           ${profile.headline ? `<p class="bio" style="font-weight:500">${esc(profile.headline)}</p>` : ""}
+          <div class="section-title">Ringkasan</div>
+          ${provStats}
+          ${provChart}
           <div class="section-title">Pesanan masuk (${nb})</div>
           ${bookingList}
           <div class="section-title">Layanan saya (${services.length})</div>
