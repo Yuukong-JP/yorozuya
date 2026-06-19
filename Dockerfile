@@ -1,0 +1,23 @@
+# Production image for KOLEGA (FastAPI).
+# Build:  docker build -t kolega .
+# Run:    docker run -p 8000:8000 -e DATABASE_URL=... -e SECRET_KEY=... kolega
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Install dependencies first for better layer caching.
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application source.
+COPY . .
+
+# Platforms (Railway/Render/etc.) inject $PORT; default to 8000 locally.
+EXPOSE 8000
+
+# Apply database migrations, then start the server.
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
