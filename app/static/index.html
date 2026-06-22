@@ -1345,8 +1345,43 @@
           ${bookBadge(b.status)}</div>
         ${b.note ? `<div class="oi-note">“${esc(b.note)}”</div>` : ""}
         ${statusTimeline(b.status)}
-        <div class="oi-act"><button class="del" onclick="openChat(${b.id})">💬 Chat</button>${b.status === "pending" ? `<button class="del" onclick="cancelBooking(${b.id})">Batalkan pesanan</button>` : ""}</div>
+        <div class="oi-act"><button class="del" onclick="openChat(${b.id})">💬 Chat</button>${b.status === "pending" ? `<button class="del" onclick="cancelBooking(${b.id})">Batalkan pesanan</button>` : ""}${b.status === "completed" ? `<button class="btn-mini" onclick="openReviewModal(${b.provider_id})">★ Beri ulasan</button>` : ""}</div>
       </div>`;
+    }
+    // Alur beri ulasan pasca-selesai: dibuka dari kartu pesanan yang sudah "completed".
+    // Mengambil profil penyedia agar bisa menampilkan identitas + memprefill ulasan lama.
+    async function openReviewModal(providerId) {
+      const head = (t) => `<div class="modal-head"><h3>${t}</h3><button class="modal-x" onclick="closeModal()">×</button></div>`;
+      document.getElementById("modal-box").innerHTML = head("Beri ulasan") + loadingCenter();
+      document.getElementById("modal").classList.remove("hidden");
+      const { ok, data: p } = await api(`/providers/${providerId}`);
+      if (!ok) { document.getElementById("modal-box").innerHTML = head("Beri ulasan") + errorState(`openReviewModal(${providerId})`); return; }
+      const mine = currentUser ? (p.reviews || []).find((r) => r.author_username === currentUser.username) : null;
+      const cat = (p.services && p.services[0] && p.services[0].category) || "lainnya";
+      document.getElementById("modal-box").innerHTML = head(mine ? "Perbarui ulasan" : "Beri ulasan") + `
+        <div class="book-prov">
+          <div class="ava" style="background:${grad(cat)}">${initial(p.display_name)}</div>
+          <div><div class="book-name">${esc(p.display_name)}</div><div class="sub">${esc(p.profession)}</div></div>
+        </div>
+        <label>Rating</label>
+        <div class="star-input" id="star-input">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-v="${n}" onclick="setReviewStar(${n})">★</button>`).join("")}</div>
+        <label>Komentar (opsional)</label>
+        <textarea id="rev-comment" placeholder="Ceritakan pengalamanmu…">${mine ? esc(mine.comment || "") : ""}</textarea>
+        <button class="btn" style="margin-top:16px" onclick="submitBookingReview(${providerId})">${mine ? "Perbarui ulasan" : "Kirim ulasan"}</button>
+        <div id="rev-msg" class="msg"></div>`;
+      selectedStar = mine ? mine.rating : 0;
+      setReviewStar(selectedStar);
+    }
+    async function submitBookingReview(providerId) {
+      if (selectedStar < 1) { setMsg("rev-msg", "Pilih bintang dulu (1–5).", false); return; }
+      const comment = document.getElementById("rev-comment").value.trim() || null;
+      const { ok, data } = await api(`/providers/${providerId}/reviews`, { method: "POST", body: JSON.stringify({ rating: selectedStar, comment }) });
+      if (ok) {
+        document.getElementById("modal-box").innerHTML = `<div class="book-done">
+          <div class="book-check">✓</div><h3>Terima kasih!</h3>
+          <p class="bio" style="margin:6px 0 20px">Ulasanmu membantu warga lain memilih penyedia tepercaya.</p>
+          <button class="btn" onclick="closeModal(); showDashboard()">Tutup</button></div>`;
+      } else setMsg("rev-msg", errText(data) || "Gagal mengirim ulasan", false);
     }
     async function cancelBooking(id) { await api(`/bookings/${id}/cancel`, { method: "POST" }); showDashboard(); }
     async function renderProviderDashboard(dash) {
