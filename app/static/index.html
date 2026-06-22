@@ -497,6 +497,55 @@
     /* Modal */
     .modal { box-shadow: 8px 8px 0 var(--ink); }
     .notif { border: 1.5px solid var(--ink); }
+
+    /* ===== Loading / error states ===== */
+    @keyframes shimmer { 0% { background-position: -340px 0; } 100% { background-position: 340px 0; } }
+    .sk { background: #f3eddf; background-image: linear-gradient(90deg, #f3eddf 0px, #fbf6ea 160px, #f3eddf 320px);
+      background-size: 680px 100%; animation: shimmer 1.1s linear infinite; border-radius: 8px; }
+    .sk-card { border: 2.5px solid var(--ink); border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-lg); background: #fff; }
+    .sk-card .sk-cover { height: 96px; border-radius: 0; }
+    .sk-card .sk-body { padding: 14px 16px 16px; }
+    .sk-line { height: 12px; margin-top: 10px; }
+    .state-box { grid-column: 1/-1; text-align: center; padding: 48px 20px; }
+    .state-box .se { font-size: 40px; line-height: 1; }
+    .state-box h3 { font-family: var(--display); font-size: 18px; margin: 14px 0 4px; }
+    .state-box p { color: var(--muted); font-size: 14px; margin: 0 auto 16px; max-width: 360px; }
+    .spinner { width: 26px; height: 26px; border: 3px solid var(--line); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-center { padding: 56px 0; text-align: center; }
+    @media (prefers-reduced-motion: reduce) { .sk, .spinner { animation: none !important; } }
+
+    /* ===== Mobile-first responsiveness + bottom nav ala handoff ===== */
+    .botnav { display: none; }
+    @media (max-width: 720px) {
+      .topbar { gap: 10px; padding: 11px 16px; }
+      .topbar .nav { display: none; }            /* nav pindah ke bottom bar */
+      .userbox { margin-left: auto; font-size: 12.5px; gap: 8px; }
+      .userbox .role-chip { display: none; }
+      main { padding: 0 16px 96px; }
+      .wrap { padding: 0 16px; }
+      .lhero { padding: 40px 0 34px; }
+      .lhero h1 { font-size: 30px; }
+      .lhero p { font-size: 15.5px; }
+      .section { padding: 36px 0; }
+      .cat-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .detail-body { padding: 0 18px 22px; }
+      .hero-illu { display: none; }
+      .lstats { gap: 22px; }
+      .modal { max-width: 100%; }
+      /* Bottom nav: bar hitam, item aktif kuning — echo prototipe Cerah */
+      .botnav { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+        background: var(--ink); border-top: 2.5px solid var(--ink);
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); justify-content: space-around; }
+      .botnav button { flex: 1; border: 0; background: none; color: #8a857c; font-family: var(--font);
+        font-size: 10.5px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 0; }
+      .botnav button.active { color: var(--yellow); }
+      .botnav svg { width: 22px; height: 22px; }
+      .botnav .notif { margin: 0; position: absolute; transform: translate(12px,-6px); }
+    }
   </style>
 </head>
 <body>
@@ -658,6 +707,16 @@
     <div class="modal" id="modal-box"></div>
   </div>
 
+  <!-- Bottom nav (mobile) — echo arah Cerah: bar hitam, item aktif kuning -->
+  <nav class="botnav" id="botnav">
+    <button data-nav="landing" onclick="navTo('landing')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Beranda</button>
+    <button data-nav="browse" onclick="navTo('browse')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>Cari</button>
+    <button data-nav="account" onclick="navTo('account')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span id="botnav-acct">Akun</span></button>
+  </nav>
+
   <script>
     const API = "/api/v1";
     const TOKEN_KEY = "kolega_token";
@@ -786,15 +845,31 @@
     }
 
     async function api(path, opts = {}) {
-      const res = await fetch(API + path, { ...opts, headers: { "Content-Type": "application/json", ...authH(), ...(opts.headers || {}) } });
+      let res;
+      try {
+        res = await fetch(API + path, { ...opts, headers: { "Content-Type": "application/json", ...authH(), ...(opts.headers || {}) } });
+      } catch (_) {
+        // Gangguan jaringan / server tak terjangkau — kembalikan flag agar UI bisa tampil error+coba lagi.
+        return { ok: false, status: 0, data: null, networkError: true };
+      }
       let data = null; try { data = await res.json(); } catch (_) {}
       return { ok: res.ok, status: res.status, data };
     }
+    // Komponen state generik (loading / error+retry) untuk diselipkan ke kontainer.
+    const skeletonGrid = (n = 6) => Array.from({ length: n }).map(() =>
+      `<div class="sk-card"><div class="sk sk-cover"></div><div class="sk-body">
+        <div class="sk sk-line" style="width:60%"></div><div class="sk sk-line" style="width:40%"></div>
+        <div class="sk sk-line" style="width:85%"></div></div></div>`).join("");
+    const errorState = (retryFn, msg) => `<div class="state-box"><div class="se">📡</div>
+      <h3>Gagal memuat</h3><p>${esc(msg || "Sepertinya ada gangguan koneksi. Coba lagi sebentar.")}</p>
+      <button class="btn-outline btn-lg" style="padding:11px 20px;font-size:14px" onclick="${retryFn}">Coba lagi</button></div>`;
+    const loadingCenter = () => `<div class="loading-center"><div class="spinner"></div></div>`;
     function errText(d) { if (!d || !d.detail) return null; if (typeof d.detail === "string") return d.detail; if (Array.isArray(d.detail)) return d.detail[0]?.msg || null; return null; }
     function setMsg(id, t, ok) { const el = document.getElementById(id); el.textContent = t; el.className = "msg " + (ok ? "ok" : "err"); }
 
     function navTo(view) {
       document.querySelectorAll(".navlink").forEach((b) => b.classList.toggle("active", b.dataset.nav === view));
+      document.querySelectorAll(".botnav button").forEach((b) => b.classList.toggle("active", b.dataset.nav === view));
       document.getElementById("view-landing").classList.toggle("hidden", view !== "landing");
       document.getElementById("app-main").classList.toggle("hidden", view === "landing");
       document.getElementById("view-browse").classList.toggle("hidden", view !== "browse");
@@ -844,6 +919,8 @@
       const pending = data.filter((b) => b.status === "pending").length;
       const navAccount = document.getElementById("nav-account");
       navAccount.innerHTML = `Akun${pending ? ` <span class="notif">${pending}</span>` : ""}`;
+      const ba = document.getElementById("botnav-acct");
+      if (ba) ba.innerHTML = `Akun${pending ? ` <span class="notif">${pending}</span>` : ""}`;
     }
 
     function renderChips() {
@@ -862,13 +939,21 @@
       const params = new URLSearchParams();
       if (q) params.set("q", q);
       if (activeCat) params.set("category", activeCat);
-      const { data } = await api(`/providers?${params.toString()}`);
       const list = document.getElementById("browse-list");
       const title = document.getElementById("browse-title");
       const count = document.getElementById("browse-count");
       title.textContent = activeCat ? catMeta(activeCat).label : (q ? `Hasil untuk “${q}”` : "Penyedia terbaru");
-      count.textContent = data ? `${data.length} penyedia` : "";
-      if (!data || data.length === 0) { list.innerHTML = `<div class="empty">Belum ada penyedia yang cocok. Coba kata kunci atau kategori lain.</div>`; return; }
+      count.textContent = "";
+      list.innerHTML = skeletonGrid();          // loading state
+      const { ok, data } = await api(`/providers?${params.toString()}`);
+      if (!ok) { list.innerHTML = errorState("loadBrowse()"); return; }
+      count.textContent = `${data.length} penyedia`;
+      if (!data || data.length === 0) {
+        list.innerHTML = `<div class="state-box"><div class="se">🔍</div><h3>Belum ada yang cocok</h3>
+          <p>Coba kata kunci lain atau pilih kategori berbeda.</p>
+          ${activeCat || q ? `<button class="btn-outline btn-lg" style="padding:11px 20px;font-size:14px" onclick="setCat('')">Lihat semua penyedia</button>` : ""}</div>`;
+        return;
+      }
       list.innerHTML = data.map((p, i) => gigCard(p, i)).join("");
     }
     function gigCard(p, i = 0) {
@@ -1045,8 +1130,16 @@
     }
 
     async function openProvider(id) {
+      document.getElementById("browse-home").classList.add("hidden");
+      const dEarly = document.getElementById("browse-detail");
+      dEarly.classList.remove("hidden");
+      dEarly.innerHTML = `<button class="back" onclick="showBrowseHome()">← Kembali ke pencarian</button>${loadingCenter()}`;
+      window.scrollTo({ top: 0 });
       const { data: p, ok } = await api(`/providers/${id}`);
-      if (!ok) return;
+      if (!ok) {
+        dEarly.innerHTML = `<button class="back" onclick="showBrowseHome()">← Kembali ke pencarian</button>${errorState(`openProvider(${id})`)}`;
+        return;
+      }
       currentDetail = p;
       const cat = (p.services && p.services[0] && p.services[0].category) || "lainnya";
       const verif = p.is_verified ? `<span class="badge on">${VERIF_ICON}Terverifikasi</span>` : `<span class="badge off">Baru</span>`;
@@ -1151,6 +1244,7 @@
     async function showDashboard() {
       document.getElementById("auth-card").classList.add("hidden");
       const dash = document.getElementById("dashboard"); dash.classList.remove("hidden");
+      dash.innerHTML = `<div class="panel"><div class="detail-body" style="padding:32px 24px">${loadingCenter()}</div></div>`;
       if (currentUser.role === "admin") return renderAdminDashboard(dash);
       if (currentUser.role === "provider") return renderProviderDashboard(dash);
       renderCustomerDashboard(dash);
@@ -1258,7 +1352,7 @@
     async function renderProviderDashboard(dash) {
       const { ok, status, data: profile } = await api("/providers/me");
       if (status === 404) return renderProfileForm(dash, null);
-      if (!ok) { dash.innerHTML = `<div class="empty">Gagal memuat profil.</div>`; return; }
+      if (!ok) { dash.innerHTML = `<div class="panel"><div class="detail-body" style="padding:24px">${errorState("showDashboard()")}</div></div>`; return; }
       window.CURRENT_PROFILE = profile;
       const services = profile.services || [];
       const { data: incoming } = await api("/bookings/incoming");
