@@ -486,9 +486,13 @@
     .tl-step.done .tl-dot { background: var(--mint); color: var(--ink); }
     .tl-bar.done { background: var(--mint); }
 
-    /* Rating pill kuning muda khas Cerah */
+    /* Rating — bintang kuning Cerah, kosong warm-muted */
     .rating b { color: var(--ink); }
     .rev-highlight b { color: var(--yellow); }
+    .rating .stars.has, .rev-summary .gstar, .rev-stars .gstar, .oc-rating .gstar,
+    .star-input button.on { color: #FFC83D; }
+    .rating .stars, .rev-summary .mstar, .rev-stars .mstar, .oc-rating .mstar,
+    .star-input button { color: #e0dacd; }
 
     /* Modal */
     .modal { box-shadow: 8px 8px 0 var(--ink); }
